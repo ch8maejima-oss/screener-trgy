@@ -55,7 +55,22 @@ jobs:
           grep -q "スクリーニング銘柄一覧" out/index.html || { echo "本文が生成されていません"; exit 1; }
           echo "出力ファイル数: $(find out -type f | wc -l)"
 
-      - name: XServer Static へデプロイ
+      - name: 転送先パスの検証
+        # mirror --delete は転送先の不要ファイルを削除する。パスの設定を誤ると
+        # 他サイトのディレクトリを消しかねないため、本サイト専用の場所を指しているか確認する。
+        env:
+          FTP_REMOTE_DIR: ${{ secrets.XSERVER_FTP_REMOTE_DIR }}
+        run: |
+          case "$FTP_REMOTE_DIR" in
+            */public_html/screener|*/public_html/screener/)
+              echo "転送先: $FTP_REMOTE_DIR" ;;
+            *)
+              echo "転送先が screener 専用ディレクトリではありません: '$FTP_REMOTE_DIR'"
+              echo "XSERVER_FTP_REMOTE_DIR は .../public_html/screener を指定してください。"
+              exit 1 ;;
+          esac
+
+      - name: Xserver へデプロイ
         env:
           FTP_HOST: ${{ secrets.XSERVER_FTP_HOST }}
           FTP_USER: ${{ secrets.XSERVER_FTP_USER }}
@@ -63,8 +78,6 @@ jobs:
           FTP_REMOTE_DIR: ${{ secrets.XSERVER_FTP_REMOTE_DIR }}
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq lftp
-          # --delete は公開先の不要ファイルを消す。REMOTE_DIR の指定を誤ると
-          # 対象ディレクトリの中身が削除されるため、設定時に必ず確認すること。
           lftp -c "
             set ftp:ssl-allow true;
             set ssl:verify-certificate false;

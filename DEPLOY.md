@@ -1,11 +1,14 @@
-# screener.trgy.co.jp 公開手順（XServer Static）
+# screener.trgy.co.jp 公開手順（Xserver スタンダードプラン）
 
-Vercelは使わず、エックスサーバーが無料提供する静的ホスティング「XServer Static」に置く。
+Vercelは使わず、既に契約しているエックスサーバー（サーバーID `eaexpo` / `sv8170` /
+スタンダードプラン）のサブドメインとして公開する。`trgy.co.jp` は同サーバーに
+ドメイン登録済みのため、サブドメインを1つ追加するだけでよく、追加費用は発生しない。
+
 日次のデータ更新とデプロイは GitHub Actions が行うため、Macを起動しておく必要はない。
 
 ```
 GitHub Actions（毎営業日 18:30 JST）
-  → 株価・配当を取得して再判定 → サイトをビルド → FTPでXServer Staticへ転送
+  → 株価・配当を取得して再判定 → サイトをビルド → FTPでXserverへ転送
 ```
 
 サイトは完全な静的ファイル（HTML/CSS/JS）のみで、サーバー側の処理を持たない。
@@ -36,18 +39,16 @@ git push -u origin main
 
 ---
 
-## 2. XServer Static の有効化
+## 2. Xserver にサブドメインを追加
 
-1. Xserverアカウントにログインし、「XServer Static」を申し込む（**無料**）
-2. サーバーパネルで **`screener.trgy.co.jp`** をドメイン追加
-3. 「無料独自SSL」を有効化する（反映に最大1時間程度）
-4. FTPアカウント情報（ホスト名・ユーザー名・パスワード）と、
-   公開ディレクトリのパス（例: `/screener.trgy.co.jp/public_html`）を控える
+1. XServerアカウント → 対象サーバー（`eaexpo`）の **「サーバー管理」**（サーバーパネル）を開く
+2. **「サブドメイン設定」** → ドメイン一覧から **`trgy.co.jp`** の「選択する」
+3. **「サブドメイン設定追加」** タブ
+   - サブドメイン: **`screener`**
+   - 「無料独自SSLを利用する」に**チェックを入れる**
+4. 確認画面へ進み、追加する（SSLの反映に最大1時間程度）
 
-> XServer Static には GitHub 連携によるデプロイ機能もあるが、本サイトはビルドが必要なため
-> 使わない。ビルドは GitHub Actions 側で行い、成果物だけを FTP で送る。
-
----
+作成されるディレクトリは `/home/eaexpo/trgy.co.jp/public_html/screener/`。
 
 ## 3. GitHub Secrets の登録
 
@@ -55,22 +56,32 @@ git push -u origin main
 
 | 名前 | 値 | 用途 |
 |---|---|---|
-| `XSERVER_FTP_HOST` | FTPサーバー名 | 日次デプロイ |
-| `XSERVER_FTP_USER` | FTPユーザー名 | 日次デプロイ |
-| `XSERVER_FTP_PASSWORD` | FTPパスワード | 日次デプロイ |
-| `XSERVER_FTP_REMOTE_DIR` | 公開ディレクトリのパス | 日次デプロイ |
+| `XSERVER_FTP_HOST` | `sv8170.xserver.jp` | 日次デプロイ |
+| `XSERVER_FTP_USER` | `eaexpo`（サーバーパネル「FTPアカウント設定」で確認） | 日次デプロイ |
+| `XSERVER_FTP_PASSWORD` | 上記FTPアカウントのパスワード | 日次デプロイ |
+| `XSERVER_FTP_REMOTE_DIR` | `/trgy.co.jp/public_html/screener` | 日次デプロイ |
 | `EDINET_API_KEY` | EDINETのAPIキー | 財務データ再取得（年1回） |
 
 > **`XSERVER_FTP_REMOTE_DIR` は必ず確認すること。**
 > デプロイは `mirror --delete` で同期するため、誤ったディレクトリを指定すると
-> その中身が削除される。必ず本サイト専用のディレクトリを指定する。
+> その中身が削除される。同じサーバーには `ea-exposition.com` も同居しているため、
+> 誤指定の影響が他サイトに及びうる。
+>
+> ワークフロー側にも防御を入れてあり、パスが `.../public_html/screener` で
+> 終わっていない場合はデプロイせずに失敗する。
 
 ---
 
 ## 4. DNSの切り替え（ムームーDNS）
 
 ムームードメインの「ムームーDNS」で `trgy.co.jp` のカスタム設定を開き、
-サブドメイン `screener` のCNAMEに XServer Static が指定するホスト名を設定する。
+サブドメイン `screener` に次のAレコードを設定する。
+
+| 項目 | 値 |
+|---|---|
+| サブドメイン | `screener` |
+| 種別 | `A` |
+| 内容 | `183.181.89.11`（`sv8170.xserver.jp`） |
 
 反映後、https://screener.trgy.co.jp が表示されることを確認する。
 
