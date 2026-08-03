@@ -1,0 +1,85 @@
+# 日次のスクリーニング更新と XServer Static へのデプロイ。
+#
+# 財務データ（有価証券報告書）は年1回しか変わらないため、この処理では取得しない。
+# 日次で変動するのは株価と配当だけなので、それを取り直して条件1を再判定し、
+# サイトを再ビルドして公開する。
+name: 日次更新とデプロイ
+
+on:
+  schedule:
+    # UTC 09:30 = JST 18:30。東証の大引け(15:30)後、株価が確定してから実行する。
+    - cron: "30 9 * * 1-5"
+  workflow_dispatch: # 手動実行も可能にする
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  update-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # 更新した結果をリポジトリに書き戻すため
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Python依存関係のインストール
+        run: pip install -r requirements.txt
+
+      - name: スクリーニング実行（株価・配当を取得して再判定）
+        run: python scripts/screen.py
+
+      - name: サイト用データの生成
+        run: python scripts/build_site_data.py
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: サイトのビルド
+        run: |
+          npm ci
+          npm run build
+
+      - name: ビルド結果の検証
+        # 空ディレクトリを配信して既存サイトを消してしまう事故を防ぐ
+        run: |
+          test -f out/index.html || { echo "out/index.html がありません"; exit 1; }
+          grep -q "スクリーニング銘柄一覧" out/index.html || { echo "本文が生成されていません"; exit 1; }
+          echo "出力ファイル数: $(find out -type f | wc -l)"
+
+      - name: XServer Static へデプロイ
+        env:
+          FTP_HOST: ${{ secrets.XSERVER_FTP_HOST }}
+          FTP_USER: ${{ secrets.XSERVER_FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.XSERVER_FTP_PASSWORD }}
+          FTP_REMOTE_DIR: ${{ secrets.XSERVER_FTP_REMOTE_DIR }}
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq lftp
+          # --delete は公開先の不要ファイルを消す。REMOTE_DIR の指定を誤ると
+          # 対象ディレクトリの中身が削除されるため、設定時に必ず確認すること。
+          lftp -c "
+            set ftp:ssl-allow true;
+            set ssl:verify-certificate false;
+            open -u \"$FTP_USER\",\"$FTP_PASSWORD\" \"$FTP_HOST\";
+            mirror -R --delete --verbose --exclude-glob .well-known/ out/ \"$FTP_REMOTE_DIR\";
+          "
+
+      - name: 結果をリポジトリに記録
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add output app/data
+          if git diff --staged --quiet; then
+            echo "更新なし"
+          else
+            git commit -m "日次更新: $(date -u -d '+9 hours' '+%Y-%m-%d')"
+            git push
+          fi

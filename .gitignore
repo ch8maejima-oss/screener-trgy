@@ -1,0 +1,9 @@
+.env
+data/raw/
+data/snapshot/prices.csv
+.DS_Store
+__pycache__/
+node_modules/
+.next/
+out/
+.vercel

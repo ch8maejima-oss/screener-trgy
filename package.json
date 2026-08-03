@@ -1,0 +1,23 @@
+{
+  "name": "screener-trgy",
+  "version": "0.1.0",
+  "private": true,
+  "description": "スクリーニング銘柄一覧 (screener.trgy.co.jp) — 株式会社トリロジー",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "^15.5.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "typescript": "^5"
+  }
+}

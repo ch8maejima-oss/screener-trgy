@@ -1,0 +1,395 @@
+/* デザイントークンは valuation.trgy.co.jp と共通。サイト間で体裁を揃える。 */
+:root {
+  --navy: #0f2947;
+  --navy-light: #1c3d63;
+  --gold: #b8925a;
+  --bg: #f5f6f8;
+  --card-bg: #ffffff;
+  --text: #1a1a1a;
+  --text-muted: #5c6570;
+  --border: #e2e5ea;
+  --row-hover: #f7f9fc;
+  --radius: 12px;
+  --shadow: 0 2px 12px rgba(15, 41, 71, 0.06);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, system-ui,
+    sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.7;
+}
+
+.page-wrap {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.mono {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+.num {
+  text-align: right;
+}
+.muted {
+  color: var(--text-muted);
+}
+
+/* ---------- Header ---------- */
+.site-header {
+  background: var(--navy);
+  color: #fff;
+}
+.site-header__inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 16px 20px;
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+.site-header__brand {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--gold);
+}
+.site-header__title {
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+/* ---------- Main ---------- */
+.site-main {
+  flex: 1;
+}
+.home {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 28px 20px 56px;
+}
+
+.home > section {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 22px 24px;
+  margin-bottom: 20px;
+}
+
+.home h2 {
+  font-size: 1.05rem;
+  margin: 0 0 12px;
+  padding-left: 10px;
+  border-left: 4px solid var(--gold);
+}
+
+/* ---------- Intro ---------- */
+.intro h1 {
+  font-size: 1.5rem;
+  margin: 0 0 8px;
+}
+.intro__asof {
+  margin: 0 0 12px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+}
+.intro__universe::before {
+  content: "／ ";
+}
+.intro__lead {
+  margin: 0;
+}
+
+/* ---------- Disclaimer ---------- */
+.disclaimer-banner {
+  background: #fdf8ef;
+  border: 1px solid #e6d5b8;
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+.disclaimer-banner__lead {
+  margin: 0 0 8px;
+}
+.disclaimer-banner p:last-child {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.disclaimer-full ul {
+  margin: 0;
+  padding-left: 1.2em;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.disclaimer-full li {
+  margin-bottom: 6px;
+}
+
+/* ---------- Tables ---------- */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.criteria__table,
+.results__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+  white-space: nowrap;
+}
+.criteria__table th,
+.criteria__table td,
+.results__table th,
+.results__table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  font-weight: 400;
+}
+.criteria__table thead th,
+.results__table thead th {
+  background: var(--navy);
+  color: #fff;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.results__table tbody tr:hover {
+  background: var(--row-hover);
+}
+.criteria__table th[scope="row"],
+.results__table th[scope="row"] {
+  font-weight: 600;
+}
+
+/* ---------- Criteria ---------- */
+.criteria__note,
+.criteria__footnote,
+.results__legend,
+.results__filter-note {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+.criteria__note {
+  margin: 0 0 12px;
+}
+.criteria__footnote {
+  margin: 10px 0 0;
+}
+.criteria__rule {
+  font-weight: 600;
+  color: var(--navy-light);
+}
+.criteria__source {
+  white-space: normal;
+  min-width: 22em;
+  color: var(--text-muted);
+}
+
+/* ---------- Results ---------- */
+.results__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.results__count {
+  margin: 0 0 12px;
+  font-weight: 600;
+}
+.results__count .muted {
+  font-weight: 400;
+  font-size: 0.85rem;
+  margin-left: 6px;
+}
+.results__filters {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.results__filters label {
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.results__filters select {
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 5px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--text);
+}
+.results__filter-note {
+  margin: 0;
+}
+.results__table thead th button {
+  font: inherit;
+  font-weight: 600;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.results__table thead th button.is-active {
+  color: var(--gold);
+}
+.results__name {
+  white-space: normal;
+  min-width: 12em;
+}
+.results__sector,
+.results__period {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+.results__legend {
+  margin: 10px 0 0;
+}
+
+/* ---------- Coverage ---------- */
+.coverage__stats {
+  list-style: none;
+  margin: 0 0 18px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+.coverage__stat {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  background: #fbfcfd;
+}
+.coverage__stat--accent {
+  border-color: var(--gold);
+  background: #fdf8ef;
+}
+.coverage__value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.coverage__stat--muted .coverage__value {
+  color: var(--text-muted);
+}
+.coverage__label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.coverage__detail {
+  margin: 0;
+  font-size: 0.86rem;
+}
+.coverage__detail dt {
+  font-weight: 700;
+  margin-top: 14px;
+  color: var(--navy-light);
+}
+.coverage__detail dd {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+}
+.coverage__detail dd ul {
+  margin: 6px 0 0;
+  padding-left: 1.2em;
+}
+
+/* ---------- Sources ---------- */
+.sources ul {
+  margin: 0;
+  padding-left: 1.2em;
+  font-size: 0.86rem;
+  color: var(--text-muted);
+}
+
+/* ---------- Footer ---------- */
+.site-footer {
+  background: var(--navy);
+  color: #cdd6e0;
+  font-size: 0.82rem;
+}
+.site-footer__inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 28px 20px;
+}
+.site-footer__company {
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin: 0 0 10px;
+}
+.site-footer__reg {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 14px;
+}
+.site-footer__reg li {
+  margin-bottom: 2px;
+}
+.site-footer__links {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+}
+.site-footer__links a {
+  color: var(--gold);
+  text-decoration: none;
+}
+.site-footer__links a:hover {
+  text-decoration: underline;
+}
+.site-footer__copy {
+  margin: 0;
+  opacity: 0.7;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 640px) {
+  .home {
+    padding: 18px 12px 40px;
+  }
+  .home > section {
+    padding: 16px 14px;
+  }
+  .intro h1 {
+    font-size: 1.25rem;
+  }
+  .criteria__source {
+    min-width: 16em;
+  }
+}

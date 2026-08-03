@@ -1,0 +1,73 @@
+# 財務データ（有価証券報告書）の再取得。手動実行のみ。
+#
+# 有報は年1回の提出なので、3月期決算の提出が出そろう7月頃に一度走らせれば足りる。
+# 取得したXBRLは容量が大きい（3,100社で約340MB）ためリポジトリには保存せず、
+# 解析結果の financials.csv だけをコミットする。
+name: 財務データの再取得
+
+on:
+  workflow_dispatch:
+    inputs:
+      days:
+        description: "書類一覧を遡る日数（既定400日＝直近1年の有報を網羅）"
+        required: false
+        default: "400"
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: 銘柄マスタの更新
+        run: |
+          python scripts/build_universe.py
+          python scripts/build_edinet_map.py
+
+      - name: 有価証券報告書の取得
+        env:
+          EDINET_API_KEY: ${{ secrets.EDINET_API_KEY }}
+        run: |
+          python scripts/fetch_edinet.py index --days "${{ inputs.days }}"
+          python scripts/fetch_edinet.py fetch
+
+      - name: 解析して財務スナップショットを更新
+        run: python scripts/parse_edinet.py
+
+      - name: 取得率の検証
+        # タクソノミ変更などで抽出が壊れた場合に気づけるようにする
+        run: |
+          python - <<'PY'
+          import pandas as pd, sys
+          d = pd.read_csv("data/snapshot/financials.csv")
+          for col, floor in [("roe_pct", .85), ("equity_ratio_pct", .85),
+                             ("revenue_y4", .85), ("current_assets", .85),
+                             ("operating_income", .80)]:
+              rate = d[col].notna().mean()
+              print(f"{col:20s} {rate:.1%}")
+              if rate < floor:
+                  sys.exit(f"取得率が想定を下回りました: {col} {rate:.1%} < {floor:.0%}")
+          PY
+
+      - name: 結果をリポジトリに記録
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/master data/snapshot/financials.csv
+          if git diff --staged --quiet; then
+            echo "更新なし"
+          else
+            git commit -m "財務データ再取得: $(date -u -d '+9 hours' '+%Y-%m-%d')"
+            git push
+          fi
