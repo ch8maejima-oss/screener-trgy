@@ -59,7 +59,7 @@ git push -u origin main
 | `XSERVER_FTP_HOST` | `sv8170.xserver.jp` | 日次デプロイ |
 | `XSERVER_FTP_USER` | `eaexpo`（サーバーパネル「FTPアカウント設定」で確認） | 日次デプロイ |
 | `XSERVER_FTP_PASSWORD` | 上記FTPアカウントのパスワード | 日次デプロイ |
-| `XSERVER_FTP_REMOTE_DIR` | `/trgy.co.jp/public_html/screener` | 日次デプロイ |
+| `XSERVER_FTP_REMOTE_DIR` | `/trgy.co.jp/public_html/screener.trgy.co.jp` | 日次デプロイ |
 | `EDINET_API_KEY` | EDINETのAPIキー | 財務データ再取得（年1回） |
 
 > **`XSERVER_FTP_REMOTE_DIR` は必ず確認すること。**

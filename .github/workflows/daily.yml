@@ -61,12 +61,17 @@ jobs:
         env:
           FTP_REMOTE_DIR: ${{ secrets.XSERVER_FTP_REMOTE_DIR }}
         run: |
+          # Xserverのサブドメイン設定はドキュメントルートを2形式から選べるため、
+          # screener.trgy.co.jp / screener のどちらの命名でも受け付ける。
           case "$FTP_REMOTE_DIR" in
+            */public_html/screener.trgy.co.jp|*/public_html/screener.trgy.co.jp/|\
             */public_html/screener|*/public_html/screener/)
               echo "転送先: $FTP_REMOTE_DIR" ;;
             *)
               echo "転送先が screener 専用ディレクトリではありません: '$FTP_REMOTE_DIR'"
-              echo "XSERVER_FTP_REMOTE_DIR は .../public_html/screener を指定してください。"
+              echo "XSERVER_FTP_REMOTE_DIR には次のいずれかを指定してください。"
+              echo "  /trgy.co.jp/public_html/screener.trgy.co.jp"
+              echo "  /trgy.co.jp/public_html/screener"
               exit 1 ;;
           esac
 
