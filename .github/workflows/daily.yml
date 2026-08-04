@@ -75,6 +75,8 @@ jobs:
               exit 1 ;;
           esac
 
+      # 転送先には Xserver が無料独自SSLの発行確認に使うファイルが置かれることがある。
+      # --delete で消すと証明書の発行・更新に失敗するため .well-known と .htaccess は除外する。
       - name: Xserver へデプロイ
         env:
           FTP_HOST: ${{ secrets.XSERVER_FTP_HOST }}
@@ -87,7 +89,7 @@ jobs:
             set ftp:ssl-allow true;
             set ssl:verify-certificate false;
             open -u \"$FTP_USER\",\"$FTP_PASSWORD\" \"$FTP_HOST\";
-            mirror -R --delete --verbose --exclude-glob .well-known/ out/ \"$FTP_REMOTE_DIR\";
+            mirror -R --delete --verbose -x '^\.well-known' -x '^\.htaccess$' out/ \"$FTP_REMOTE_DIR\";
           "
 
       - name: 結果をリポジトリに記録
