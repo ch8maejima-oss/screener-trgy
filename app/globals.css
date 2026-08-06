@@ -56,10 +56,19 @@ body {
 .site-header__inner {
   max-width: 1180px;
   margin: 0 auto;
-  padding: 16px 20px;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  position: relative;
+}
+.site-header__brandblock {
   display: flex;
   align-items: baseline;
-  gap: 14px;
+  gap: 10px;
+  text-decoration: none;
 }
 .site-header__brand {
   font-size: 1.25rem;
@@ -69,7 +78,146 @@ body {
 }
 .site-header__title {
   font-size: 0.95rem;
+  color: #fff;
   opacity: 0.9;
+}
+
+/* ---------- Nav (www.trgy.co.jp のグローバルメニューを移植) ---------- */
+.site-nav {
+  position: relative;
+}
+.site-nav__toggle {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.site-nav__toggle-bars {
+  width: 16px;
+  height: 2px;
+  background: #fff;
+  position: relative;
+  display: inline-block;
+}
+.site-nav__toggle-bars::before,
+.site-nav__toggle-bars::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 16px;
+  height: 2px;
+  background: #fff;
+}
+.site-nav__toggle-bars::before {
+  top: -5px;
+}
+.site-nav__toggle-bars::after {
+  top: 5px;
+}
+
+.site-nav__list {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 2px;
+}
+.site-nav__item {
+  position: relative;
+}
+.site-nav__row {
+  display: flex;
+  align-items: center;
+}
+.site-nav__link {
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.88rem;
+  padding: 10px 8px;
+  display: inline-block;
+  white-space: nowrap;
+}
+.site-nav__link:hover {
+  color: var(--gold);
+}
+.site-nav__link--label {
+  cursor: default;
+  opacity: 0.85;
+}
+.site-nav__caret {
+  background: none;
+  border: none;
+  color: #cdd6e0;
+  padding: 6px 8px 6px 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+.site-nav__item--parent.is-open > .site-nav__row .site-nav__caret {
+  color: var(--gold);
+  transform: rotate(180deg);
+}
+
+/* 第1階層のドロップダウンパネル */
+.site-nav__submenu[data-depth="1"] {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 250px;
+  max-width: 340px;
+  max-height: 72vh;
+  overflow-y: auto;
+  background: var(--navy-light);
+  border-radius: 0 0 10px 10px;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.25);
+  padding: 6px 0;
+  z-index: 60;
+  list-style: none;
+  margin: 0;
+}
+/* 第2階層以降はパネル内でアコーディオン表示 */
+.site-nav__submenu[data-depth="2"],
+.site-nav__submenu[data-depth="3"] {
+  position: static;
+  background: rgba(0, 0, 0, 0.18);
+  padding: 2px 0;
+  list-style: none;
+  margin: 0;
+}
+.site-nav__submenu[data-depth="1"] .site-nav__link,
+.site-nav__submenu[data-depth="1"] .site-nav__link--label {
+  display: block;
+  width: 100%;
+  padding: 9px 16px;
+  font-size: 0.85rem;
+}
+.site-nav__submenu[data-depth="2"] .site-nav__link,
+.site-nav__submenu[data-depth="2"] .site-nav__link--label {
+  padding-left: 28px;
+}
+.site-nav__submenu[data-depth="3"] .site-nav__link,
+.site-nav__submenu[data-depth="3"] .site-nav__link--label {
+  padding-left: 40px;
+  font-size: 0.82rem;
+  opacity: 0.9;
+}
+.site-nav__submenu[data-depth="1"] .site-nav__item {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.site-nav__submenu[data-depth="1"] .site-nav__item:last-child {
+  border-bottom: none;
+}
+.site-nav__submenu[data-depth="1"] .site-nav__link:hover,
+.site-nav__submenu[data-depth="1"] .site-nav__link--label:hover {
+  background: rgba(255, 255, 255, 0.06);
 }
 
 /* ---------- Main ---------- */
@@ -391,5 +539,48 @@ body {
   }
   .criteria__source {
     min-width: 16em;
+  }
+}
+
+@media (max-width: 880px) {
+  .site-header__inner {
+    padding: 12px 16px;
+  }
+  .site-nav {
+    position: static;
+  }
+  .site-nav__toggle {
+    display: flex;
+  }
+  .site-nav__list {
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    position: absolute;
+    top: 100%;
+    left: 16px;
+    right: 16px;
+    background: var(--navy-light);
+    padding: 6px 0;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3);
+    z-index: 60;
+  }
+  .site-nav__list.is-open {
+    display: flex;
+  }
+  .site-nav__link {
+    padding: 12px 16px;
+  }
+  .site-nav__row {
+    justify-content: space-between;
+  }
+  .site-nav__submenu[data-depth="1"] {
+    position: static;
+    max-width: none;
+    max-height: none;
+    border-radius: 0;
+    box-shadow: none;
   }
 }

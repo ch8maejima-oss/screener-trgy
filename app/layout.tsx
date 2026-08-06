@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Footer from "./components/Footer";
+import SiteNav from "./components/SiteNav";
 
 export const metadata: Metadata = {
   title: "スクリーニング銘柄一覧 | 株式会社トリロジー",
@@ -20,8 +21,16 @@ export default function RootLayout({
         <div className="page-wrap">
           <header className="site-header">
             <div className="site-header__inner">
-              <span className="site-header__brand">Trilogy</span>
-              <span className="site-header__title">スクリーニング銘柄一覧</span>
+              <a
+                className="site-header__brandblock"
+                href="https://www.trgy.co.jp"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span className="site-header__brand">Trilogy</span>
+                <span className="site-header__title">スクリーニング銘柄一覧</span>
+              </a>
+              <SiteNav />
             </div>
           </header>
           <main className="site-main">{children}</main>
