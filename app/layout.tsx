@@ -27,7 +27,7 @@ export default function RootLayout({
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <span className="site-header__brand">Trilogy</span>
+                <img src="/logo.png" alt="Trilogy" className="site-header__logo" />
                 <span className="site-header__title">スクリーニング銘柄一覧</span>
               </a>
               <SiteNav />
