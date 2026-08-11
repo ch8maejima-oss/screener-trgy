@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-08-10",
+  "as_of": "2026-08-11",
   "universe_label": "東証プライム市場・スタンダード市場の内国普通株式",
   "counts": {
     "population": 3100,
@@ -8,7 +8,7 @@
     "not_evaluable": 347
   },
   "per_condition_passed": {
-    "c1_dividend": 846,
+    "c1_dividend": 847,
     "c2_roe": 1182,
     "c3_equity_ratio": 1845,
     "c4_current_ratio": 1571,
