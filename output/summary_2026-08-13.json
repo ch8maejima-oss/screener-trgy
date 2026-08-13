@@ -1,0 +1,31 @@
+{
+  "基準日": "2026-08-13",
+  "対象ユニバース": "東証プライム市場・スタンダード市場の内国普通株式",
+  "母集団件数": 3100,
+  "全条件充足": 88,
+  "不通過": 2665,
+  "算出不能により対象外": 347,
+  "条件別_充足件数": {
+    "c1_dividend": 826,
+    "c2_roe": 1182,
+    "c3_equity_ratio": 1845,
+    "c4_current_ratio": 1571,
+    "c5_revenue": 2430,
+    "c6_op_margin": 836
+  },
+  "条件別_算出不能件数": {
+    "c1_dividend": 0,
+    "c2_roe": 83,
+    "c3_equity_ratio": 0,
+    "c4_current_ratio": 103,
+    "c5_revenue": 242,
+    "c6_op_margin": 143
+  },
+  "閾値": {
+    "dividend_yield_pct": 3.5,
+    "roe_pct": 10.0,
+    "equity_ratio_pct": 50.0,
+    "current_ratio_pct": 200.0,
+    "operating_margin_pct": 10.0
+  }
+}
