@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import Footer from "./components/Footer";
 import SiteNav from "./components/SiteNav";
@@ -9,6 +10,8 @@ export const metadata: Metadata = {
     "配当利回り・ROE・自己資本比率・流動比率・売上高・営業利益率の6条件を、東証プライム市場およびスタンダード市場の全銘柄に機械的に適用した結果を表示します。株式会社トリロジー（近畿財務局長（金商）第372号）。",
   robots: "noindex", // 社内利用のため検索避け。外部公開時はコンプライアンスレビュー後に解除
 };
+
+const ADSENSE_CLIENT_ID = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
 
 export default function RootLayout({
   children,
@@ -36,6 +39,14 @@ export default function RootLayout({
           <main className="site-main">{children}</main>
           <Footer />
         </div>
+        {ADSENSE_CLIENT_ID && (
+          <Script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT_ID}`}
+            crossOrigin="anonymous"
+            strategy="afterInteractive"
+          />
+        )}
       </body>
     </html>
   );

@@ -44,6 +44,9 @@ jobs:
           cache: npm
 
       - name: サイトのビルド
+        env:
+          NEXT_PUBLIC_ADSENSE_CLIENT_ID: ${{ secrets.ADSENSE_CLIENT_ID }}
+          NEXT_PUBLIC_ADSENSE_AD_SLOT: ${{ secrets.ADSENSE_AD_SLOT }}
         run: |
           npm ci
           npm run build

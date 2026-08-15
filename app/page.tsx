@@ -4,10 +4,15 @@ import { DisclaimerBanner, DisclaimerFull } from "./components/Disclaimer";
 import Criteria from "./components/Criteria";
 import Coverage from "./components/Coverage";
 import ResultTable from "./components/ResultTable";
+import AdSenseUnit from "./components/AdSenseUnit";
 
 // JSONから推論される型は各フィールドの実データに依存するため、
 // 型定義側を正とみなして変換する。構造は build_site_data.py が保証する。
 const screening = data as unknown as ScreeningData;
+
+const ADSENSE_CLIENT_ID = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
+const ADSENSE_AD_SLOT = process.env.NEXT_PUBLIC_ADSENSE_AD_SLOT;
+const ADSENSE_ENABLED = Boolean(ADSENSE_CLIENT_ID && ADSENSE_AD_SLOT);
 
 export default function Home() {
   return (
@@ -28,8 +33,27 @@ export default function Home() {
       </section>
 
       <DisclaimerBanner />
+
+      {ADSENSE_ENABLED && (
+        <div className="ad-slot">
+          <span className="ad-slot__label">広告（第三者配信）</span>
+          <AdSenseUnit client={ADSENSE_CLIENT_ID!} slot={ADSENSE_AD_SLOT!} />
+        </div>
+      )}
+
       <Criteria data={screening} />
       <ResultTable stocks={screening.stocks} />
+
+      {ADSENSE_ENABLED && (
+        <div className="ad-slot">
+          <span className="ad-slot__label">広告（第三者配信）</span>
+          <p className="ad-slot__note">
+            以下は第三者配信の広告であり、上記の銘柄一覧や当社の見解とは一切関係ございません。
+          </p>
+          <AdSenseUnit client={ADSENSE_CLIENT_ID!} slot={ADSENSE_AD_SLOT!} />
+        </div>
+      )}
+
       <Coverage data={screening} />
 
       <section className="sources" aria-label="データの出所">
@@ -44,6 +68,13 @@ export default function Home() {
           <li>株価・配当：外部market data提供元</li>
         </ul>
       </section>
+
+      {ADSENSE_ENABLED && (
+        <div className="ad-slot">
+          <span className="ad-slot__label">広告（第三者配信）</span>
+          <AdSenseUnit client={ADSENSE_CLIENT_ID!} slot={ADSENSE_AD_SLOT!} />
+        </div>
+      )}
 
       <DisclaimerFull />
     </div>
