@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -11,7 +12,23 @@ type Strategy = {
   title: string;
   description: string;
   href?: string;
+  accent: string;
 };
+
+// カードにカーソルを乗せたときの枠色。条件が増えても隣り合う色が
+// 見分けやすいよう固定順（validate_palette.jsで検証済みの8色）で
+// 追加時は末尾に足していく。途中の色を入れ替えたり、既存カードの
+// 色を使い回したりしない。
+const ACCENT = {
+  blue: "#2a78d6",
+  orange: "#eb6834",
+  aqua: "#1baf7a",
+  yellow: "#eda100",
+  magenta: "#e87ba4",
+  green: "#008300",
+  violet: "#4a3aa7",
+  red: "#e34948",
+} as const;
 
 const STRATEGIES: Strategy[] = [
   {
@@ -20,16 +37,19 @@ const STRATEGIES: Strategy[] = [
     description:
       "配当利回り・ROE・自己資本比率・流動比率・売上高・営業利益率の6条件を機械的に適用。",
     href: "/dividend/",
+    accent: ACCENT.blue,
   },
   {
     key: "daytrade",
     title: "デイトレード用スクリーニング",
     description: "準備中です。",
+    accent: ACCENT.orange,
   },
   {
     key: "swing",
     title: "スイング用スクリーニング",
     description: "準備中です。",
+    accent: ACCENT.aqua,
   },
 ];
 
@@ -55,7 +75,11 @@ export default function Home() {
         <ul className="hub__cards">
           {STRATEGIES.map((s) =>
             s.href ? (
-              <li key={s.key} className="hub__card">
+              <li
+                key={s.key}
+                className="hub__card"
+                style={{ "--accent": s.accent } as CSSProperties}
+              >
                 <a className="hub__card-link" href={s.href}>
                   <span className="hub__card-title">{s.title}</span>
                   <p className="hub__card-desc">{s.description}</p>

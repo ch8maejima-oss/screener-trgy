@@ -280,6 +280,7 @@ body {
   padding: 18px 20px;
   background: #fbfcfd;
   position: relative;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
 }
 .hub__card-link {
   display: block;
@@ -303,8 +304,9 @@ body {
   color: var(--navy-light);
 }
 .hub__card:has(.hub__card-link):hover {
-  border-color: var(--gold);
-  box-shadow: var(--shadow);
+  transform: translateY(-4px);
+  border-color: var(--accent, var(--gold));
+  box-shadow: 0 10px 22px color-mix(in srgb, var(--accent, var(--gold)) 28%, transparent);
 }
 .hub__card--soon {
   opacity: 0.75;
