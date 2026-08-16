@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { Stock } from "@/lib/types";
+import { tradingViewUrl } from "@/lib/tradingview";
 
 type SortKey = keyof Pick<
   Stock,
@@ -149,7 +150,15 @@ export default function ResultTable({ stocks }: { stocks: Stock[] }) {
               <tr key={s.sec_code}>
                 <td className="mono">{s.sec_code}</td>
                 <th scope="row" className="results__name">
-                  {s.name}
+                  <a
+                    href={tradingViewUrl(s.sec_code)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="results__tv-link"
+                    title="TradingViewでチャートを見る（外部サイト）"
+                  >
+                    {s.name}
+                  </a>
                 </th>
                 <td className="results__sector">{s.sector33}</td>
                 <td className="num mono">{fmt(s.price, 1)}</td>

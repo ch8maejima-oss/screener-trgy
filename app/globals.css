@@ -465,6 +465,14 @@ body {
   white-space: normal;
   min-width: 12em;
 }
+.results__tv-link {
+  color: var(--navy);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.results__tv-link:hover {
+  color: var(--gold);
+}
 .results__sector,
 .results__period {
   color: var(--text-muted);
