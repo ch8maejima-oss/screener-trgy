@@ -112,7 +112,7 @@ npm run build   # out/ に静的ファイルを書き出す
 
 ```bash
 python3 scripts/screen.py           # 株価・配当を取得して再判定
-python3 scripts/build_site_data.py  # app/data/latest.json を更新
+python3 scripts/build_site_data.py  # app/dividend/data/latest.json を更新
 npm run build
 ```
 

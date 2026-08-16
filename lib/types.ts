@@ -1,4 +1,4 @@
-/** app/data/latest.json の型。build_site_data.py の出力と対応する。 */
+/** app/dividend/data/latest.json の型。build_site_data.py の出力と対応する。 */
 
 export type Stock = {
   sec_code: string;

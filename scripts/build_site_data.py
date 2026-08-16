@@ -1,7 +1,7 @@
 """
 スクリーニング結果を閲覧UI用のJSONに変換する。
 
-output/ の最新の screening_*.csv / summary_*.json を読み、app/data/latest.json を生成する。
+output/ の最新の screening_*.csv / summary_*.json を読み、app/dividend/data/latest.json を生成する。
 UIは静的サイトとしてビルドされるため、この変換を経てから `npm run build` する。
 
 使い方:
@@ -16,7 +16,7 @@ import pandas as pd
 
 from config import OUTPUT_DIR, ROOT
 
-SITE_DATA = ROOT / "app" / "data"
+SITE_DATA = ROOT / "app" / "dividend" / "data"
 
 # UIに渡す列と、表示上の丸め桁数
 NUMERIC_COLS = {

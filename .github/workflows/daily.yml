@@ -55,6 +55,7 @@ jobs:
         # 空ディレクトリを配信して既存サイトを消してしまう事故を防ぐ
         run: |
           test -f out/index.html || { echo "out/index.html がありません"; exit 1; }
+          test -f out/dividend/index.html || { echo "out/dividend/index.html がありません"; exit 1; }
           grep -q "スクリーニング銘柄一覧" out/index.html || { echo "本文が生成されていません"; exit 1; }
           echo "出力ファイル数: $(find out -type f | wc -l)"
 
@@ -99,7 +100,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add output app/data
+          git add output app/dividend/data
           if git diff --staged --quiet; then
             echo "更新なし"
           else
