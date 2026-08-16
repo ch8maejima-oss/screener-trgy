@@ -24,12 +24,7 @@ export default function RootLayout({
         <div className="page-wrap">
           <header className="site-header">
             <div className="site-header__inner">
-              <a
-                className="site-header__brandblock"
-                href="https://www.trgy.co.jp"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a className="site-header__brandblock" href="/">
                 <img src="/logo.png" alt="Trilogy" className="site-header__logo" />
                 <span className="site-header__title">スクリーニング銘柄一覧</span>
               </a>

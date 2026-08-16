@@ -52,6 +52,9 @@ body {
 .site-header {
   background: var(--navy);
   color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 .site-header__inner {
   max-width: 1180px;
