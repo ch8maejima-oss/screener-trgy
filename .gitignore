@@ -1,6 +1,7 @@
 .env
 data/raw/
 data/snapshot/prices.csv
+data/snapshot/daytrade_prices.csv
 .DS_Store
 __pycache__/
 node_modules/

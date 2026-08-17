@@ -66,6 +66,10 @@ SUMMARY_EQUITY_RATIO = [
 SUMMARY_DPS = [
     "jpcrp_cor:DividendPaidPerShareSummaryOfBusinessResults",
 ]
+# 発行済株式数（時価総額の算出に使う）。DPSと同じく提出会社側にのみ存在する。
+SUMMARY_SHARES_ISSUED = [
+    "jpcrp_cor:TotalNumberOfIssuedSharesSummaryOfBusinessResults",
+]
 
 # --------------------------------------------------------------------------
 # 貸借対照表 / 損益計算書の要素ID候補
@@ -218,6 +222,10 @@ def extract(zip_path: Path) -> dict:
     rec["dps"], _ = pick(lookup, SUMMARY_DPS,
                          "CurrentYearDuration_NonConsolidatedMember")
 
+    # --- 発行済株式数（時価総額用）。DPSと同じく常に提出会社側にある ---
+    rec["shares_issued"], _ = pick(lookup, SUMMARY_SHARES_ISSUED,
+                                   "CurrentYearInstant_NonConsolidatedMember")
+
     # --- 条件4: 流動資産・流動負債 ---
     rec["current_assets"], _ = pick(lookup, BS_CURRENT_ASSETS,
                                     f"CurrentYearInstant{scope}")
@@ -290,7 +298,7 @@ def main() -> int:
 
     print(f"\n解析完了: {len(snap)}件 (失敗 {len(errors)}件) -> {out}")
     for col in ["revenue_y0", "revenue_y4", "roe_pct", "equity_ratio_pct", "dps",
-                "current_assets", "current_liabilities", "operating_income"]:
+                "shares_issued", "current_assets", "current_liabilities", "operating_income"]:
         if col in snap.columns:
             n = snap[col].notna().sum()
             print(f"  {col:22s} 取得率 {n:5d}/{len(snap)} ({n / len(snap):6.1%})")

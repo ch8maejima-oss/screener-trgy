@@ -42,7 +42,9 @@ const STRATEGIES: Strategy[] = [
   {
     key: "daytrade",
     title: "デイトレード用スクリーニング",
-    description: "準備中です。",
+    description:
+      "貸借銘柄・売買代金・前日/5日/20日騰落率・出来高増加傾向などの条件を、上昇/下落モメンタムそれぞれに機械的に適用。",
+    href: "/daytrade/",
     accent: ACCENT.orange,
   },
   {

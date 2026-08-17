@@ -38,6 +38,15 @@ jobs:
       - name: サイト用データの生成
         run: python scripts/build_site_data.py
 
+      - name: 貸借銘柄一覧の取得
+        run: python scripts/fetch_margin_list.py
+
+      - name: デイトレード用スクリーニング実行
+        run: python scripts/screen_daytrade.py
+
+      - name: デイトレード用サイトデータの生成
+        run: python scripts/build_daytrade_site_data.py
+
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
@@ -56,6 +65,7 @@ jobs:
         run: |
           test -f out/index.html || { echo "out/index.html がありません"; exit 1; }
           test -f out/dividend/index.html || { echo "out/dividend/index.html がありません"; exit 1; }
+          test -f out/daytrade/index.html || { echo "out/daytrade/index.html がありません"; exit 1; }
           grep -q "スクリーニング銘柄一覧" out/index.html || { echo "本文が生成されていません"; exit 1; }
           echo "出力ファイル数: $(find out -type f | wc -l)"
 
@@ -101,7 +111,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add output app/dividend/data
+          git add output app/dividend/data app/daytrade/data data/master/margin_list.csv
           if git diff --staged --quiet; then
             echo "更新なし"
           else
