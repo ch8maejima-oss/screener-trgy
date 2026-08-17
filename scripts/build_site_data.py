@@ -1,7 +1,10 @@
 """
 スクリーニング結果を閲覧UI用のJSONに変換する。
 
-output/ の最新の screening_*.csv / summary_*.json を読み、app/dividend/data/latest.json を生成する。
+output/ の最新の screening_*.csv / summary_*.json を読み、集計値（銘柄配列を含まない）を
+app/dividend/data/latest.json に、銘柄配列（stocks）を private-data/dividend/stocks.json に
+分けて書き出す。前者はNext.jsのビルドにそのまま埋め込まれる公開データ、後者はEA EXPO
+購入者限定のゲート配信用データで、app/配下に置かないことでビルド成果物に含まれないようにする。
 UIは静的サイトとしてビルドされるため、この変換を経てから `npm run build` する。
 
 使い方:
@@ -17,6 +20,7 @@ import pandas as pd
 from config import OUTPUT_DIR, ROOT
 
 SITE_DATA = ROOT / "app" / "dividend" / "data"
+PRIVATE_DATA = ROOT / "private-data" / "dividend"
 
 # UIに渡す列と、表示上の丸め桁数
 NUMERIC_COLS = {
@@ -75,13 +79,17 @@ def main() -> int:
         "per_condition_passed": summary["条件別_充足件数"],
         "per_condition_missing": summary["条件別_算出不能件数"],
         "thresholds": summary["閾値"],
-        "stocks": stocks,
     }
 
     SITE_DATA.mkdir(parents=True, exist_ok=True)
     out = SITE_DATA / "latest.json"
     out.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"{latest_csv.name} + {latest_json.name} -> {out}")
+
+    PRIVATE_DATA.mkdir(parents=True, exist_ok=True)
+    stocks_out = PRIVATE_DATA / "stocks.json"
+    stocks_out.write_text(json.dumps(stocks, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    print(f"{latest_csv.name} + {latest_json.name} -> {out} (集計値), {stocks_out} (銘柄配列)")
     print(f"  基準日 {payload['as_of']} / 掲載 {len(stocks)}件 "
           f"/ 母集団 {payload['counts']['population']}件")
     return 0

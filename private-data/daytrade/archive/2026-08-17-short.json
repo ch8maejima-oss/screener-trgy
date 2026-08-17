@@ -1,0 +1,17 @@
+[
+  {
+    "sec_code": "4704",
+    "name": "トレンドマイクロ",
+    "market": "プライム（内国株式）",
+    "sector33": "情報・通信業",
+    "price": 5352.0,
+    "change_1d_pct": -8.53,
+    "change_5d_pct": -20.5,
+    "change_20d_pct": -17.28,
+    "volume": 4151200.0,
+    "turnover_yen": 22217222400.0,
+    "market_cap": 754105384608.0,
+    "volume_rising": true,
+    "is_large_cap": true
+  }
+]

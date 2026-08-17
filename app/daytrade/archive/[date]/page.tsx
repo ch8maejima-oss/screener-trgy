@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import type { DaytradeScreeningData } from "@/lib/daytrade-types";
 import { DisclaimerBanner, DisclaimerFull } from "../../components/Disclaimer";
-import MomentumTable from "../../components/MomentumTable";
+import GatedMomentum from "../../components/GatedMomentum";
 
 const ARCHIVE_DIR = path.join(process.cwd(), "app", "daytrade", "data", "archive");
 
@@ -87,8 +87,16 @@ export default async function DaytradeArchiveDatePage({
         ありません。
       </p>
 
-      <MomentumTable stocks={data.buy.stocks} direction="buy" />
-      <MomentumTable stocks={data.short.stocks} direction="short" />
+      <GatedMomentum
+        resource={`daytrade/archive/${date}-buy`}
+        direction="buy"
+        contentLabel={`${date}のアーカイブ（上昇モメンタム）`}
+      />
+      <GatedMomentum
+        resource={`daytrade/archive/${date}-short`}
+        direction="short"
+        contentLabel={`${date}のアーカイブ（下落モメンタム）`}
+      />
 
       <p className="archive__back">
         <Link href="/daytrade/archive/">← アーカイブ一覧に戻る</Link>

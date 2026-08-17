@@ -1,4 +1,7 @@
-/** app/dividend/data/latest.json の型。build_site_data.py の出力と対応する。 */
+/**
+ * app/dividend/data/latest.json（集計値・公開）と private-data/dividend/stocks.json
+ * （銘柄配列・EA EXPO購入者限定でゲート配信）の型。build_site_data.py の出力と対応する。
+ */
 
 export type Stock = {
   sec_code: string;
@@ -39,7 +42,6 @@ export type ScreeningData = {
   per_condition_passed: Record<ConditionKey, number>;
   per_condition_missing: Record<ConditionKey, number>;
   thresholds: Record<string, number>;
-  stocks: Stock[];
 };
 
 /** 画面表示用の条件定義。閾値は latest.json の thresholds と一致させること。 */

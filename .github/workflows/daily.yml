@@ -47,6 +47,34 @@ jobs:
       - name: デイトレード用サイトデータの生成
         run: python scripts/build_daytrade_site_data.py
 
+      - name: 有料データの非公開化を検証
+        # 銘柄配列(stocks)はEA EXPO購入者限定のゲート配信データであり、Next.jsの
+        # ビルドにそのまま埋め込まれる app/*/data/ 配下の公開JSONに含まれてはならない
+        # （代わりに private-data/ に出力され、そちらだけがゲート配信対象になる）。
+        # ビルド前に検証することで、事故があれば早く気づける。
+        run: |
+          test -f private-data/dividend/stocks.json || { echo "private-data/dividend/stocks.json がありません"; exit 1; }
+          test -f private-data/daytrade/buy.json || { echo "private-data/daytrade/buy.json がありません"; exit 1; }
+          test -f private-data/daytrade/short.json || { echo "private-data/daytrade/short.json がありません"; exit 1; }
+          python -c "
+          import json, sys
+          from pathlib import Path
+
+          def check(path):
+              data = json.loads(Path(path).read_text(encoding='utf-8'))
+              if 'stocks' in data:
+                  sys.exit(f'ERROR: {path} に銘柄配列(stocks)が含まれています（公開JSONに残っています）')
+              for sub in ('buy', 'short'):
+                  if sub in data and 'stocks' in data[sub]:
+                      sys.exit(f'ERROR: {path} の {sub} に銘柄配列(stocks)が含まれています')
+
+          check('app/dividend/data/latest.json')
+          check('app/daytrade/data/latest.json')
+          for p in Path('app/daytrade/data/archive').glob('*.json'):
+              check(p)
+          print('公開JSONに銘柄配列が含まれていないことを確認しました')
+          "
+
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
@@ -75,6 +103,8 @@ jobs:
         # 他サイトのディレクトリを消しかねないため、本サイト専用の場所を指しているか確認する。
         env:
           FTP_REMOTE_DIR: ${{ secrets.XSERVER_FTP_REMOTE_DIR }}
+          FTP_PRIVATE_DATA_DIR: ${{ secrets.XSERVER_SCREENER_PRIVATE_DATA_DIR }}
+          FTP_MUPLUGINS_DIR: ${{ secrets.XSERVER_MUPLUGINS_DIR }}
         run: |
           # Xserverのサブドメイン設定はドキュメントルートを2形式から選べるため、
           # screener.trgy.co.jp / screener のどちらの命名でも受け付ける。
@@ -87,6 +117,24 @@ jobs:
               echo "XSERVER_FTP_REMOTE_DIR には次のいずれかを指定してください。"
               echo "  /trgy.co.jp/public_html/screener.trgy.co.jp"
               echo "  /trgy.co.jp/public_html/screener"
+              exit 1 ;;
+          esac
+          # 非公開データ用ディレクトリ(ea-exposition.com側)はscreener専用の場所であること。
+          # mirror --delete をそのまま使うため、誤って他サイトのデータを消さないよう確認する。
+          case "$FTP_PRIVATE_DATA_DIR" in
+            */wp-content/private/screener-data|*/wp-content/private/screener-data/)
+              echo "非公開データ転送先: $FTP_PRIVATE_DATA_DIR" ;;
+            *)
+              echo "非公開データ転送先が screener-data 専用ディレクトリではありません: '$FTP_PRIVATE_DATA_DIR'"
+              exit 1 ;;
+          esac
+          # mu-plugins配置先には既存のtrilogy-dividend-gate.phpも同居しているため、
+          # 単一ファイルのputのみ許可する（mirror --deleteは使わない）。パスの形だけ確認する。
+          case "$FTP_MUPLUGINS_DIR" in
+            */wp-content/mu-plugins|*/wp-content/mu-plugins/)
+              echo "mu-plugins転送先: $FTP_MUPLUGINS_DIR" ;;
+            *)
+              echo "mu-plugins転送先が想定外です: '$FTP_MUPLUGINS_DIR'"
               exit 1 ;;
           esac
 
@@ -108,11 +156,50 @@ jobs:
             mirror -R --delete --verbose -x '^\.well-known' -x '^\.htaccess$' out/ \"$FTP_REMOTE_DIR\";
           "
 
+      - name: 非公開データをea-exposition.comへデプロイ
+        # 銘柄配列(stocks)はEA EXPO購入者限定のゲート配信データのため、screener.trgy.co.jp
+        # の公開フォルダには置かない。同一Xserverアカウント内、ea-exposition.com側の
+        # 非公開フォルダへ転送し、WordPress側のtrilogy-screener-gate.php
+        # （wp-content/mu-plugins/）が注文番号・メールアドレスの検証を通った場合のみ
+        # このデータを返す。private-data/.htaccess（Deny from all）も一緒に転送される。
+        # このディレクトリはscreener専用の新規パスのため --delete を使っても安全。
+        timeout-minutes: 15
+        env:
+          FTP_HOST: ${{ secrets.XSERVER_FTP_HOST }}
+          FTP_USER: ${{ secrets.XSERVER_FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.XSERVER_FTP_PASSWORD }}
+          FTP_PRIVATE_DATA_DIR: ${{ secrets.XSERVER_SCREENER_PRIVATE_DATA_DIR }}
+        run: |
+          lftp -c "
+            set ftp:ssl-allow true;
+            set ssl:verify-certificate false;
+            open -u \"$FTP_USER\",\"$FTP_PASSWORD\" \"$FTP_HOST\";
+            mirror -R --delete --verbose private-data/ \"$FTP_PRIVATE_DATA_DIR\";
+          "
+
+      - name: mu-pluginをea-exposition.comへデプロイ
+        # wp-content/mu-plugins/ には dividend.trgy.co.jp 用の trilogy-dividend-gate.php も
+        # 同居しているため、mirror --delete は使わずファイル1つだけを put する
+        # （既存ファイルを誤って消さないため）。
+        timeout-minutes: 5
+        env:
+          FTP_HOST: ${{ secrets.XSERVER_FTP_HOST }}
+          FTP_USER: ${{ secrets.XSERVER_FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.XSERVER_FTP_PASSWORD }}
+          FTP_MUPLUGINS_DIR: ${{ secrets.XSERVER_MUPLUGINS_DIR }}
+        run: |
+          lftp -c "
+            set ftp:ssl-allow true;
+            set ssl:verify-certificate false;
+            open -u \"$FTP_USER\",\"$FTP_PASSWORD\" \"$FTP_HOST\";
+            put wordpress/trilogy-screener-gate.php -o \"$FTP_MUPLUGINS_DIR/trilogy-screener-gate.php\";
+          "
+
       - name: 結果をリポジトリに記録
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add output app/dividend/data app/daytrade/data data/master/margin_list.csv
+          git add output app/dividend/data app/daytrade/data data/master/margin_list.csv private-data
           if git diff --staged --quiet; then
             echo "更新なし"
           else

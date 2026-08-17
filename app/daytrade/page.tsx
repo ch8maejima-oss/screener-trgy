@@ -5,7 +5,7 @@ import type { DaytradeScreeningData } from "@/lib/daytrade-types";
 import { DisclaimerBanner, DisclaimerFull } from "./components/Disclaimer";
 import Criteria from "./components/Criteria";
 import Coverage from "./components/Coverage";
-import MomentumTable from "./components/MomentumTable";
+import GatedMomentum from "./components/GatedMomentum";
 import AdSenseUnit from "../components/AdSenseUnit";
 
 export const metadata: Metadata = {
@@ -51,8 +51,16 @@ export default function DaytradePage() {
       )}
 
       <Criteria data={screening} />
-      <MomentumTable stocks={screening.buy.stocks} direction="buy" />
-      <MomentumTable stocks={screening.short.stocks} direction="short" />
+      <GatedMomentum
+        resource="daytrade/buy"
+        direction="buy"
+        contentLabel="デイトレード用スクリーニング（上昇モメンタム）"
+      />
+      <GatedMomentum
+        resource="daytrade/short"
+        direction="short"
+        contentLabel="デイトレード用スクリーニング（下落モメンタム）"
+      />
 
       {ADSENSE_ENABLED && (
         <div className="ad-slot">

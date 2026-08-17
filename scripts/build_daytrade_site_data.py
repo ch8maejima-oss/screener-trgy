@@ -2,8 +2,12 @@
 デイトレード用スクリーニング結果を閲覧UI用のJSONに変換する。
 
 output/ の最新の daytrade_buy_*.csv / daytrade_short_*.csv / daytrade_summary_*.json を読み、
-app/daytrade/data/latest.json を生成する。同じ内容を app/daytrade/data/archive/{基準日}.json
-にも書き出し、日次バッチを重ねるたびに過去の結果がアーカイブとして蓄積されるようにする
+集計値（銘柄配列を含まない）を app/daytrade/data/latest.json に、銘柄配列（stocks）を
+private-data/daytrade/ 配下に分けて書き出す。前者はNext.jsのビルドにそのまま埋め込まれる
+公開データ、後者はEA EXPO購入者限定のゲート配信用データ。同じ分割を
+app/daytrade/data/archive/{基準日}.json（公開・集計値のみ）と
+private-data/daytrade/archive/{基準日}-{buy,short}.json（非公開・銘柄配列）にも適用し、
+日次バッチを重ねるたびに過去の結果がアーカイブとして蓄積されるようにする
 （latest.json は毎回上書きだが archive/ 配下は削除しない）。
 
 使い方:
@@ -20,6 +24,8 @@ from config import OUTPUT_DIR, ROOT
 
 SITE_DATA = ROOT / "app" / "daytrade" / "data"
 ARCHIVE_DIR = SITE_DATA / "archive"
+PRIVATE_DATA = ROOT / "private-data" / "daytrade"
+PRIVATE_ARCHIVE_DIR = PRIVATE_DATA / "archive"
 
 # UIに渡す列と、表示上の丸め桁数
 NUMERIC_COLS = {
@@ -66,6 +72,9 @@ def main() -> int:
     latest_buy, latest_short, latest_json = buys[-1], shorts[-1], summaries[-1]
     summary = json.loads(latest_json.read_text(encoding="utf-8"))
 
+    buy_stocks = to_stocks(latest_buy)
+    short_stocks = to_stocks(latest_short)
+
     payload = {
         "as_of": summary["基準日"],
         "universe_label": summary["対象ユニバース"],
@@ -77,14 +86,8 @@ def main() -> int:
             "not_evaluable": summary["算出不能により対象外"],
         },
         "common_thresholds": summary["共通閾値"],
-        "buy": {
-            "thresholds": summary["買い候補閾値"],
-            "stocks": to_stocks(latest_buy),
-        },
-        "short": {
-            "thresholds": summary["空売り候補閾値"],
-            "stocks": to_stocks(latest_short),
-        },
+        "buy": {"thresholds": summary["買い候補閾値"]},
+        "short": {"thresholds": summary["空売り候補閾値"]},
     }
 
     SITE_DATA.mkdir(parents=True, exist_ok=True)
@@ -96,9 +99,21 @@ def main() -> int:
     archive_out = ARCHIVE_DIR / f"{payload['as_of']}.json"
     archive_out.write_text(text, encoding="utf-8")
 
-    print(f"{latest_buy.name} + {latest_short.name} + {latest_json.name} -> {out}, {archive_out}")
-    print(f"  基準日 {payload['as_of']} / 買い候補 {len(payload['buy']['stocks'])}件 "
-          f"/ 空売り候補 {len(payload['short']['stocks'])}件")
+    PRIVATE_DATA.mkdir(parents=True, exist_ok=True)
+    PRIVATE_ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
+    (PRIVATE_DATA / "buy.json").write_text(
+        json.dumps(buy_stocks, ensure_ascii=False, indent=2), encoding="utf-8")
+    (PRIVATE_DATA / "short.json").write_text(
+        json.dumps(short_stocks, ensure_ascii=False, indent=2), encoding="utf-8")
+    (PRIVATE_ARCHIVE_DIR / f"{payload['as_of']}-buy.json").write_text(
+        json.dumps(buy_stocks, ensure_ascii=False, indent=2), encoding="utf-8")
+    (PRIVATE_ARCHIVE_DIR / f"{payload['as_of']}-short.json").write_text(
+        json.dumps(short_stocks, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    print(f"{latest_buy.name} + {latest_short.name} + {latest_json.name} -> {out}, {archive_out} "
+          f"(集計値・公開) / {PRIVATE_DATA} (銘柄配列・非公開)")
+    print(f"  基準日 {payload['as_of']} / 買い候補 {len(buy_stocks)}件 "
+          f"/ 空売り候補 {len(short_stocks)}件")
     return 0
 
 

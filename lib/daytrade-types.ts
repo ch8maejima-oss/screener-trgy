@@ -1,4 +1,8 @@
-/** app/daytrade/data/latest.json の型。build_daytrade_site_data.py の出力と対応する。 */
+/**
+ * app/daytrade/data/latest.json・archive/{date}.json（集計値・公開）と
+ * private-data/daytrade/{buy,short}.json（銘柄配列・EA EXPO購入者限定でゲート配信）の型。
+ * build_daytrade_site_data.py の出力と対応する。
+ */
 
 export type DaytradeStock = {
   sec_code: string;
@@ -29,11 +33,9 @@ export type DaytradeScreeningData = {
   common_thresholds: Record<string, number>;
   buy: {
     thresholds: Record<string, number>;
-    stocks: DaytradeStock[];
   };
   short: {
     thresholds: Record<string, number>;
-    stocks: DaytradeStock[];
   };
 };
 

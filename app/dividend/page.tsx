@@ -4,7 +4,7 @@ import type { ScreeningData } from "@/lib/types";
 import { DisclaimerBanner, DisclaimerFull } from "./components/Disclaimer";
 import Criteria from "./components/Criteria";
 import Coverage from "./components/Coverage";
-import ResultTable from "./components/ResultTable";
+import GatedResults from "./components/GatedResults";
 import AdSenseUnit from "../components/AdSenseUnit";
 
 export const metadata: Metadata = {
@@ -49,7 +49,7 @@ export default function Home() {
       )}
 
       <Criteria data={screening} />
-      <ResultTable stocks={screening.stocks} />
+      <GatedResults />
 
       {ADSENSE_ENABLED && (
         <div className="ad-slot">
