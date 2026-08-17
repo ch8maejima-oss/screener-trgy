@@ -20,6 +20,11 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write # 更新した結果をリポジトリに書き戻すため
+    env:
+      # if: 条件式では secrets コンテキストを直接参照できないため、env経由にする。
+      # EA EXPO商品作成・Secrets登録が完了するまでは有料データ配信ステップ一式をスキップし、
+      # 既存の /dividend・/daytrade の通常デプロイに影響が出ないようにする。
+      SCREENER_PAID_READY: ${{ secrets.XSERVER_SCREENER_PRIVATE_DATA_DIR != '' && secrets.XSERVER_MUPLUGINS_DIR != '' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -103,8 +108,6 @@ jobs:
         # 他サイトのディレクトリを消しかねないため、本サイト専用の場所を指しているか確認する。
         env:
           FTP_REMOTE_DIR: ${{ secrets.XSERVER_FTP_REMOTE_DIR }}
-          FTP_PRIVATE_DATA_DIR: ${{ secrets.XSERVER_SCREENER_PRIVATE_DATA_DIR }}
-          FTP_MUPLUGINS_DIR: ${{ secrets.XSERVER_MUPLUGINS_DIR }}
         run: |
           # Xserverのサブドメイン設定はドキュメントルートを2形式から選べるため、
           # screener.trgy.co.jp / screener のどちらの命名でも受け付ける。
@@ -119,6 +122,16 @@ jobs:
               echo "  /trgy.co.jp/public_html/screener"
               exit 1 ;;
           esac
+
+      - name: 非公開データ配信パスの検証
+        # XSERVER_SCREENER_PRIVATE_DATA_DIR / XSERVER_MUPLUGINS_DIR が未登録の間
+        # （EA EXPO商品作成・Secrets登録が完了するまで）はこのステップごとスキップし、
+        # 既存の /dividend・/daytrade の通常デプロイに影響が出ないようにする。
+        if: ${{ env.SCREENER_PAID_READY == 'true' }}
+        env:
+          FTP_PRIVATE_DATA_DIR: ${{ secrets.XSERVER_SCREENER_PRIVATE_DATA_DIR }}
+          FTP_MUPLUGINS_DIR: ${{ secrets.XSERVER_MUPLUGINS_DIR }}
+        run: |
           # 非公開データ用ディレクトリ(ea-exposition.com側)はscreener専用の場所であること。
           # mirror --delete をそのまま使うため、誤って他サイトのデータを消さないよう確認する。
           case "$FTP_PRIVATE_DATA_DIR" in
@@ -163,6 +176,7 @@ jobs:
         # （wp-content/mu-plugins/）が注文番号・メールアドレスの検証を通った場合のみ
         # このデータを返す。private-data/.htaccess（Deny from all）も一緒に転送される。
         # このディレクトリはscreener専用の新規パスのため --delete を使っても安全。
+        if: ${{ env.SCREENER_PAID_READY == 'true' }}
         timeout-minutes: 15
         env:
           FTP_HOST: ${{ secrets.XSERVER_FTP_HOST }}
@@ -181,6 +195,7 @@ jobs:
         # wp-content/mu-plugins/ には dividend.trgy.co.jp 用の trilogy-dividend-gate.php も
         # 同居しているため、mirror --delete は使わずファイル1つだけを put する
         # （既存ファイルを誤って消さないため）。
+        if: ${{ env.SCREENER_PAID_READY == 'true' }}
         timeout-minutes: 5
         env:
           FTP_HOST: ${{ secrets.XSERVER_FTP_HOST }}
