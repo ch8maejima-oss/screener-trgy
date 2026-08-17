@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import data from "./data/latest.json";
 import type { DaytradeScreeningData } from "@/lib/daytrade-types";
 import { DisclaimerBanner, DisclaimerFull } from "./components/Disclaimer";
@@ -34,6 +35,9 @@ export default function DaytradePage() {
           {screening.counts.buy_passed.toLocaleString()}銘柄・下落モメンタム条件通過
           {screening.counts.short_passed.toLocaleString()}銘柄を全件掲載しています。
           当社が有望と判断した銘柄を選び出したものではなく、売買を推奨・勧誘するものでもありません。
+        </p>
+        <p className="intro__lead">
+          <Link href="/daytrade/archive/">過去の判定結果のアーカイブを見る →</Link>
         </p>
       </section>
 

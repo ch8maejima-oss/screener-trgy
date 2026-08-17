@@ -323,6 +323,72 @@ body {
   padding: 3px 10px;
 }
 
+/* ---------- Archive ---------- */
+.archive__back {
+  margin: 0 0 16px;
+  font-size: 0.88rem;
+}
+.archive__back a {
+  color: var(--navy-light);
+  text-decoration: none;
+}
+.archive__back a:hover {
+  color: var(--gold);
+  text-decoration: underline;
+}
+.archive__empty {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  color: var(--text-muted);
+}
+.archive__month {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  margin-bottom: 20px;
+}
+.archive__month h2 {
+  font-size: 1.05rem;
+  margin: 0 0 12px;
+  padding-left: 10px;
+  border-left: 4px solid var(--gold);
+}
+.archive__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.archive__item-link {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.archive__item-link:hover {
+  border-color: var(--gold);
+  background: var(--row-hover);
+}
+.archive__item-date {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.archive__item-counts {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
 /* ---------- Disclaimer ---------- */
 .disclaimer-banner {
   background: #fdf8ef;

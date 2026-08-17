@@ -2,7 +2,9 @@
 デイトレード用スクリーニング結果を閲覧UI用のJSONに変換する。
 
 output/ の最新の daytrade_buy_*.csv / daytrade_short_*.csv / daytrade_summary_*.json を読み、
-app/daytrade/data/latest.json を生成する。
+app/daytrade/data/latest.json を生成する。同じ内容を app/daytrade/data/archive/{基準日}.json
+にも書き出し、日次バッチを重ねるたびに過去の結果がアーカイブとして蓄積されるようにする
+（latest.json は毎回上書きだが archive/ 配下は削除しない）。
 
 使い方:
     python3 scripts/build_daytrade_site_data.py
@@ -17,6 +19,7 @@ import pandas as pd
 from config import OUTPUT_DIR, ROOT
 
 SITE_DATA = ROOT / "app" / "daytrade" / "data"
+ARCHIVE_DIR = SITE_DATA / "archive"
 
 # UIに渡す列と、表示上の丸め桁数
 NUMERIC_COLS = {
@@ -86,8 +89,14 @@ def main() -> int:
 
     SITE_DATA.mkdir(parents=True, exist_ok=True)
     out = SITE_DATA / "latest.json"
-    out.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"{latest_buy.name} + {latest_short.name} + {latest_json.name} -> {out}")
+    text = json.dumps(payload, ensure_ascii=False, indent=2)
+    out.write_text(text, encoding="utf-8")
+
+    ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
+    archive_out = ARCHIVE_DIR / f"{payload['as_of']}.json"
+    archive_out.write_text(text, encoding="utf-8")
+
+    print(f"{latest_buy.name} + {latest_short.name} + {latest_json.name} -> {out}, {archive_out}")
     print(f"  基準日 {payload['as_of']} / 買い候補 {len(payload['buy']['stocks'])}件 "
           f"/ 空売り候補 {len(payload['short']['stocks'])}件")
     return 0
