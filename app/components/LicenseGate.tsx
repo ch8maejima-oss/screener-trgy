@@ -134,7 +134,7 @@ export default function LicenseGate({
           <p className="gate-modal__disclosure--sub">
             未購入の方は
             <a
-              href="https://ea-exposition.com/category/item/indicator-tool"
+              href="https://ea-exposition.com/category/item/tool"
               target="_blank"
               rel="noopener noreferrer"
               className="gate-field__link"
