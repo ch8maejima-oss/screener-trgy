@@ -391,44 +391,107 @@ body {
 }
 
 /* ---------- License gate (EA EXPO purchase check) ---------- */
-.gate-card {
+.no-scroll {
+  overflow: hidden;
+}
+.gate-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.gate-modal__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 41, 71, 0.55);
+}
+.gate-modal__panel {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
   background: var(--card-bg);
-  border: 1px solid var(--border);
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 24px;
-  margin-bottom: 20px;
-  max-width: 480px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  padding: 28px;
+  max-height: 90vh;
+  overflow-y: auto;
 }
-.gate-card__title {
-  font-size: 1.05rem;
-  margin: 0 0 12px;
-  padding-left: 10px;
-  border-left: 4px solid var(--gold);
+.gate-modal__title {
+  font-size: 1.1rem;
+  color: var(--navy);
+  margin: 0 0 16px;
 }
-.gate-card__body {
+.gate-modal__body {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
-.gate-card__disclosure {
+.gate-modal__disclosure {
   margin: 0;
   font-size: 0.9rem;
   color: var(--text);
   line-height: 1.7;
 }
-.gate-card__disclosure--sub {
+.gate-modal__disclosure--sub {
   margin: 0;
   font-size: 0.78rem;
   color: var(--text-muted);
   line-height: 1.6;
 }
-.gate-card__actions {
+.gate-modal__actions {
   display: flex;
   gap: 12px;
+  flex-wrap: wrap;
 }
-.gate-card__btn {
+.gate-modal__btn {
   padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+}
+.gate-modal__btn--primary {
+  background: var(--navy);
+  color: #fff;
+}
+.gate-modal__btn--primary:hover:not(:disabled) {
+  background: var(--navy-light);
+}
+.gate-modal__btn--primary:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.gate-modal__btn--secondary {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+.gate-modal__btn--secondary:hover:not(:disabled) {
+  border-color: var(--navy-light);
+  color: var(--navy);
+}
+
+/* ゲート化されたコンテンツの手前に表示する、モーダルを開くための呼び出し口 */
+.gate-teaser {
+  background: var(--card-bg);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 32px 24px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+.gate-teaser__text {
+  margin: 0 0 16px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+.gate-teaser__btn {
+  padding: 12px 24px;
   border-radius: 8px;
   font-size: 0.95rem;
   font-weight: 700;
@@ -437,12 +500,8 @@ body {
   background: var(--navy);
   color: #fff;
 }
-.gate-card__btn:hover:not(:disabled) {
+.gate-teaser__btn:hover {
   background: var(--navy-light);
-}
-.gate-card__btn:disabled {
-  opacity: 0.6;
-  cursor: default;
 }
 .gate-field {
   display: flex;

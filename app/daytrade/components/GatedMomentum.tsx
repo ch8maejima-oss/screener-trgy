@@ -2,8 +2,9 @@
 
 // 銘柄一覧（stocks）はEA EXPO購入者限定のゲート配信データのため、ビルド時に
 // 埋め込まれた公開JSONではなく、注文番号・メールアドレスの検証を通った場合のみ
-// 実行時に取得する。取得できるまでは MomentumTable の代わりに LicenseGate を表示する。
-// /daytrade（当日分）と /daytrade/archive/[date]（過去分）の両方で、resourceキーを
+// 実行時に取得する。取得できるまでは MomentumTable の代わりに、モーダルを開く
+// ための呼び出し口（gate-teaser）を表示する。
+// /daytrade（当日分）と /daytrade/archive/[date] (過去分）の両方で、resourceキーを
 // 変えて共用する。
 
 import { useEffect, useState } from "react";
@@ -31,6 +32,7 @@ export default function GatedMomentum({
   const [stocks, setStocks] = useState<DaytradeStock[] | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showGate, setShowGate] = useState(false);
 
   useEffect(() => {
     const cred = loadStoredCredential();
@@ -43,7 +45,9 @@ export default function GatedMomentum({
       if (result.ok && result.data) {
         setStocks(result.data);
       } else {
+        // 保存済みの認証情報が無効・期限切れになっていた場合は、モーダルを開いて再入力を促す
         setError(gateErrorMessage(result.error));
+        setShowGate(true);
       }
     });
     return () => {
@@ -59,6 +63,7 @@ export default function GatedMomentum({
     if (result.ok && result.data) {
       storeCredential(cred);
       setStocks(result.data);
+      setShowGate(false);
     } else {
       setError(gateErrorMessage(result.error));
     }
@@ -87,11 +92,31 @@ export default function GatedMomentum({
   }
 
   return (
-    <LicenseGate
-      contentLabel={contentLabel}
-      initialError={error}
-      onSubmit={handleSubmit}
-      submitting={submitting}
-    />
+    <>
+      <section className="gate-teaser">
+        <p className="gate-teaser__text">
+          「{contentLabel}」の銘柄一覧は、EA EXPOご購入者様限定でご覧いただけます。
+        </p>
+        <button
+          type="button"
+          className="gate-teaser__btn"
+          onClick={() => {
+            setError(null);
+            setShowGate(true);
+          }}
+        >
+          銘柄一覧を見る
+        </button>
+      </section>
+      {showGate && (
+        <LicenseGate
+          contentLabel={contentLabel}
+          initialError={error}
+          onSubmit={handleSubmit}
+          onCancel={() => setShowGate(false)}
+          submitting={submitting}
+        />
+      )}
+    </>
   );
 }
