@@ -136,8 +136,17 @@ function trilogy_screener_find_order(string $order_number, string $email): array
         return ['status' => 'not_found'];
     }
 
-    // 許可リスト方式: 空文字（決済確定）のみ有効。noreceiptや将来の未知ステータスは無効。
-    if (trim((string) $order->order_status) !== '') {
+    // 許可リスト方式: 決済確定を示す状態のみ有効。
+    // Welcartのorder_statusは支払い方法・処理経路により形式が異なる。
+    // - 空文字（一部の決済方法で自動確定した場合）
+    // - "completion,receipted,"（銀行振込等、管理画面で対応状況=対応完了・
+    //   入金状況=入金済みに手動更新した場合のカンマ区切りフラグ文字列）
+    // 2026-08-19、実際のテスト注文（銀行振込）で確認・修正。他の未知の
+    // ステータス値は無効として扱う。
+    $order_status = trim((string) $order->order_status);
+    $is_paid = $order_status === ''
+        || (strpos($order_status, 'completion') !== false && strpos($order_status, 'receipted') !== false);
+    if (!$is_paid) {
         return ['status' => 'unpaid'];
     }
 
