@@ -1,17 +1,17 @@
 [
   {
-    "sec_code": "3103",
-    "name": "ユニチカ",
-    "market": "スタンダード（内国株式）",
-    "sector33": "繊維製品",
-    "price": 1550.0,
-    "change_1d_pct": 2.45,
-    "change_5d_pct": 40.65,
-    "change_20d_pct": 75.34,
-    "volume": 24717500.0,
-    "turnover_yen": 38312125000.0,
-    "market_cap": 89515600000.0,
+    "sec_code": "4392",
+    "name": "ＦＩＧ",
+    "market": "プライム（内国株式）",
+    "sector33": "情報・通信業",
+    "price": 1403.0,
+    "change_1d_pct": 5.89,
+    "change_5d_pct": 59.79,
+    "change_20d_pct": 31.12,
+    "volume": 12646800.0,
+    "turnover_yen": 17743460400.0,
+    "market_cap": 44325140345.0,
     "volume_rising": true,
-    "is_large_cap": true
+    "is_large_cap": false
   }
 ]

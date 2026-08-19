@@ -5,8 +5,8 @@
     "population": 3115,
     "margin_eligible": 2106,
     "buy_passed": 1,
-    "short_passed": 6,
-    "not_evaluable": 11
+    "short_passed": 8,
+    "not_evaluable": 12
   },
   "common_thresholds": {
     "株価下限": 500.0,
