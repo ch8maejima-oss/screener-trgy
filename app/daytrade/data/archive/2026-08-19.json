@@ -6,7 +6,7 @@
     "margin_eligible": 2106,
     "buy_passed": 1,
     "short_passed": 8,
-    "not_evaluable": 12
+    "not_evaluable": 11
   },
   "common_thresholds": {
     "株価下限": 500.0,
