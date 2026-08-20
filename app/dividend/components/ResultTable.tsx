@@ -7,6 +7,8 @@ import { tradingViewUrl } from "@/lib/tradingview";
 type SortKey = keyof Pick<
   Stock,
   | "sec_code"
+  | "market_cap"
+  | "avg_volume_3m"
   | "dividend_yield_pct"
   | "roe_pct"
   | "equity_ratio_pct"
@@ -15,23 +17,33 @@ type SortKey = keyof Pick<
   | "operating_margin_pct"
 >;
 
-const COLUMNS: { key: SortKey; label: string; unit?: string }[] = [
-  { key: "dividend_yield_pct", label: "配当利回り", unit: "%" },
-  { key: "roe_pct", label: "ROE", unit: "%" },
-  { key: "equity_ratio_pct", label: "自己資本比率", unit: "%" },
-  { key: "current_ratio_pct", label: "流動比率", unit: "%" },
-  { key: "revenue_change_pct", label: "売上高変化", unit: "%" },
-  { key: "operating_margin_pct", label: "営業利益率", unit: "%" },
-];
-
-const ALL = "すべて";
-
 function fmt(v: number | null, digits = 2) {
   return v === null ? "—" : v.toLocaleString("ja-JP", {
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,
   });
 }
+function fmtOku(v: number | null) {
+  return v === null
+    ? "—"
+    : `${(v / 1e8).toLocaleString("ja-JP", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}億円`;
+}
+function fmtShares(v: number | null) {
+  return v === null ? "—" : `${Math.round(v).toLocaleString("ja-JP")}株`;
+}
+
+const COLUMNS: { key: SortKey; label: string; format: (v: number | null) => string }[] = [
+  { key: "market_cap", label: "時価総額", format: fmtOku },
+  { key: "avg_volume_3m", label: "平均出来高（3ヶ月）", format: fmtShares },
+  { key: "dividend_yield_pct", label: "配当利回り", format: (v) => fmt(v) + (v === null ? "" : "%") },
+  { key: "roe_pct", label: "ROE", format: (v) => fmt(v) + (v === null ? "" : "%") },
+  { key: "equity_ratio_pct", label: "自己資本比率", format: (v) => fmt(v) + (v === null ? "" : "%") },
+  { key: "current_ratio_pct", label: "流動比率", format: (v) => fmt(v) + (v === null ? "" : "%") },
+  { key: "revenue_change_pct", label: "売上高変化", format: (v) => fmt(v) + (v === null ? "" : "%") },
+  { key: "operating_margin_pct", label: "営業利益率", format: (v) => fmt(v) + (v === null ? "" : "%") },
+];
+
+const ALL = "すべて";
 
 export default function ResultTable({ stocks }: { stocks: Stock[] }) {
   const [sortKey, setSortKey] = useState<SortKey>("dividend_yield_pct");
@@ -164,7 +176,7 @@ export default function ResultTable({ stocks }: { stocks: Stock[] }) {
                 <td className="num mono">{fmt(s.price, 1)}</td>
                 {COLUMNS.map((c) => (
                   <td key={c.key} className="num mono">
-                    {fmt(s[c.key] as number | null)}
+                    {c.format(s[c.key] as number | null)}
                   </td>
                 ))}
                 <td className="results__period">{s.period_end ?? "—"}</td>
@@ -176,7 +188,8 @@ export default function ResultTable({ stocks }: { stocks: Stock[] }) {
 
       <p className="results__legend">
         「売上高変化」は【主要な経営指標等の推移】5期分のうち最も古い期から直近期までの
-        変化率です。並び順は表示上のものであり、銘柄の優劣を示すものではありません。
+        変化率です。「平均出来高（3ヶ月）」は基準日時点から直近3ヶ月間の日次出来高の平均値です。
+        並び順は表示上のものであり、銘柄の優劣を示すものではありません。
       </p>
     </section>
   );

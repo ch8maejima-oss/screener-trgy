@@ -25,6 +25,8 @@ PRIVATE_DATA = ROOT / "private-data" / "dividend"
 # UIに渡す列と、表示上の丸め桁数
 NUMERIC_COLS = {
     "price": 1,
+    "market_cap": 0,
+    "avg_volume_3m": 0,
     "dividend_ttm": 2,
     "dividend_yield_pct": 2,
     "roe_pct": 2,

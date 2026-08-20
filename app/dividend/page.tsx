@@ -72,7 +72,7 @@ export default function Home() {
           <li>
             対象銘柄：日本取引所グループ「東証上場銘柄一覧」
           </li>
-          <li>株価・配当：外部market data提供元</li>
+          <li>株価・配当・時価総額・平均出来高：外部market data提供元</li>
         </ul>
       </section>
 

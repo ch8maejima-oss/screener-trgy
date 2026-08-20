@@ -11,6 +11,8 @@ export type Stock = {
   period_end: string | null;
   scope: string | null;
   price: number | null;
+  market_cap: number | null;
+  avg_volume_3m: number | null;
   dividend_ttm: number | null;
   dividend_yield_pct: number | null;
   roe_pct: number | null;

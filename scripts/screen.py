@@ -42,7 +42,7 @@ THRESHOLDS = {
 
 def fetch_market_data(codes: list, batch: int = 150) -> pd.DataFrame:
     """
-    直近終値と、直近12か月に実際に支払われた配当の合計を一括取得する。
+    直近終値、直近12か月に実際に支払われた配当の合計、直近3か月の平均出来高を一括取得する。
 
     配当に有報の「1株当たり配当額」をそのまま使うことはできない。期中に株式分割が
     あると、有報の値は中間配当が分割前・期末配当が分割後の基準で合算され、分割後の
@@ -62,9 +62,16 @@ def fetch_market_data(codes: list, batch: int = 150) -> pd.DataFrame:
                 continue
             sub = data[t]
             close = sub["Close"].dropna() if "Close" in sub else []
+            if "Volume" in sub and len(sub["Volume"].dropna()):
+                cutoff = sub.index.max() - pd.DateOffset(months=3)
+                vol_3m = sub["Volume"][sub.index >= cutoff].dropna()
+                avg_volume_3m = float(vol_3m.mean()) if len(vol_3m) else None
+            else:
+                avg_volume_3m = None
             rows.append({
                 "sec_code": t[:-2],
                 "price": float(close.iloc[-1]) if len(close) else None,
+                "avg_volume_3m": avg_volume_3m,
                 "dividend_ttm": (float(sub["Dividends"].sum())
                                  if "Dividends" in sub else None),
             })
@@ -78,6 +85,7 @@ def compute(df: pd.DataFrame) -> pd.DataFrame:
     df["dividend_yield_pct"] = (
         df["dividend_ttm"] / df["price"] * 100
     ).where(df["price"] > 0)
+    df["market_cap"] = df["price"] * df["shares_issued"]
     # 有報の開示値との乖離。株式分割や決算期ズレの検出用に残す
     df["dps_yuho"] = df["dps"]
     df["dps_diff_pct"] = ((df["dividend_ttm"] / df["dps"] - 1) * 100).where(df["dps"] > 0)
@@ -154,6 +162,7 @@ def main() -> int:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     cols = ["sec_code", "name", "market", "sector33", "period_end", "scope", "price",
+            "market_cap", "avg_volume_3m",
             "dividend_ttm", "dividend_yield_pct", "roe_pct", "equity_ratio_pct",
             "current_ratio_pct", "revenue_change_pct", "operating_margin_pct",
             "dps_yuho", "dps_diff_pct", "result"]
