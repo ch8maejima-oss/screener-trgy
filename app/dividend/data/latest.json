@@ -3,12 +3,12 @@
   "universe_label": "東証プライム市場・スタンダード市場の内国普通株式",
   "counts": {
     "population": 3100,
-    "passed": 82,
-    "failed": 2658,
-    "not_evaluable": 360
+    "passed": 81,
+    "failed": 2671,
+    "not_evaluable": 348
   },
   "per_condition_passed": {
-    "c1_dividend": 817,
+    "c1_dividend": 811,
     "c2_roe": 1182,
     "c3_equity_ratio": 1845,
     "c4_current_ratio": 1571,
@@ -16,7 +16,7 @@
     "c6_op_margin": 836
   },
   "per_condition_missing": {
-    "c1_dividend": 15,
+    "c1_dividend": 1,
     "c2_roe": 83,
     "c3_equity_ratio": 0,
     "c4_current_ratio": 103,
