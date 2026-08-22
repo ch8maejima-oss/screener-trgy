@@ -748,6 +748,19 @@ body {
   color: var(--text-muted);
   font-size: 0.8rem;
 }
+.results__match .results__badge {
+  margin-left: 0;
+  white-space: normal;
+}
+.results__badge--full {
+  color: var(--navy);
+  border-color: var(--navy);
+}
+.results__badge--near {
+  color: #9a6b00;
+  border-color: #9a6b00;
+  cursor: help;
+}
 .results__legend {
   margin: 10px 0 0;
 }

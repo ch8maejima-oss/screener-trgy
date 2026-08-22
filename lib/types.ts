@@ -97,3 +97,132 @@ export const CONDITIONS: {
     source: "損益計算書の営業利益 ÷ 上記売上高（直近期）",
   },
 ];
+
+/**
+ * テンバガー候補スクリーニング（build_tenbagger_site_data.py の出力と対応）。
+ * app/dividend 用の型とは対象銘柄・条件が異なるため独立させている。
+ */
+export type TenbaggerStock = {
+  sec_code: string;
+  name: string;
+  market: string;
+  sector33: string;
+  period_end: string | null;
+  scope: string | null;
+  result: "全条件充足" | "8/9条件充足";
+  /** 「8/9条件充足」の銘柄について、満たしていない条件のラベル（通常1件）。全条件充足なら空配列。 */
+  unmet_conditions: string[];
+  price: number | null;
+  market_cap: number | null;
+  avg_volume_3m: number | null;
+  revenue_cagr_pct: number | null;
+  profit_cagr_pct: number | null;
+  profit_turnaround: boolean;
+  equity_ratio_pct: number | null;
+  listing_years: number | null;
+  pbr: number | null;
+  sector_avg_pbr: number | null;
+  shares_growth_pct: number | null;
+};
+
+export type TenbaggerConditionKey =
+  | "c1_market_cap"
+  | "c2_revenue_growth"
+  | "c3_profit_growth"
+  | "c4_equity_ratio"
+  | "c5_listing_years"
+  | "c6_price"
+  | "c7_volume"
+  | "c8_pbr"
+  | "c9_no_dilution";
+
+export type TenbaggerScreeningData = {
+  as_of: string;
+  universe_label: string;
+  counts: {
+    population: number;
+    /** 9条件すべて充足 */
+    full_match: number;
+    /** 9条件中8条件充足（未達1条件） */
+    near_match: number;
+    /** full_match + near_match（掲載件数） */
+    passed: number;
+    failed: number;
+    not_evaluable: number;
+  };
+  per_condition_passed: Record<TenbaggerConditionKey, number>;
+  per_condition_missing: Record<TenbaggerConditionKey, number>;
+  thresholds: Record<string, number>;
+};
+
+export const CONDITIONS_TENBAGGER: {
+  key: TenbaggerConditionKey;
+  no: number;
+  label: string;
+  rule: string;
+  source: string;
+}[] = [
+  {
+    key: "c1_market_cap",
+    no: 1,
+    label: "時価総額",
+    rule: "100億円以下",
+    source: "直近終値 × 発行済株式数",
+  },
+  {
+    key: "c2_revenue_growth",
+    no: 2,
+    label: "売上高成長率",
+    rule: "5期（4年間）の年平均成長率 15%以上",
+    source: "有価証券報告書【主要な経営指標等の推移】の売上高5期分から算出",
+  },
+  {
+    key: "c3_profit_growth",
+    no: 3,
+    label: "経常利益成長率",
+    rule: "5期（4年間）の年平均成長率 15%以上（5期前が赤字からの黒字転換は合格扱い）",
+    source: "有価証券報告書【主要な経営指標等の推移】の経常利益5期分から算出",
+  },
+  {
+    key: "c4_equity_ratio",
+    no: 4,
+    label: "自己資本比率",
+    rule: "50%以上",
+    source: "有価証券報告書【主要な経営指標等の推移】の開示値",
+  },
+  {
+    key: "c5_listing_years",
+    no: 5,
+    label: "上場からの年数",
+    rule: "8年以内",
+    source: "株価データが遡れる最古の月（上場月の近似値）から算出",
+  },
+  {
+    key: "c6_price",
+    no: 6,
+    label: "株価",
+    rule: "600円以下",
+    source: "直近終値",
+  },
+  {
+    key: "c7_volume",
+    no: 7,
+    label: "出来高（流動性）",
+    rule: "3ヶ月平均出来高が1日あたり3万株以上",
+    source: "直近3ヶ月間の日次出来高の平均値",
+  },
+  {
+    key: "c8_pbr",
+    no: 8,
+    label: "PBR",
+    rule: "同一業種（33業種区分）平均以下",
+    source: "時価総額 ÷ 純資産（有価証券報告書開示値）。業種平均は対象ユニバース内で算出",
+  },
+  {
+    key: "c9_no_dilution",
+    no: 9,
+    label: "増資の有無",
+    rule: "発行済株式数が前期比20%を超えて増加していないこと",
+    source: "有価証券報告書【主要な経営指標等の推移】の発行済株式数（当期・前期）",
+  },
+];

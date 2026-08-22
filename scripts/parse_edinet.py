@@ -70,6 +70,16 @@ SUMMARY_DPS = [
 SUMMARY_SHARES_ISSUED = [
     "jpcrp_cor:TotalNumberOfIssuedSharesSummaryOfBusinessResults",
 ]
+# テンバガー候補スクリーニング用: 経常利益（IFRS適用会社は税引前利益で代替）
+SUMMARY_ORDINARY_INCOME = [
+    "jpcrp_cor:OrdinaryIncomeLossSummaryOfBusinessResults",
+    "jpcrp_cor:ProfitLossBeforeTaxIFRSSummaryOfBusinessResults",
+]
+# テンバガー候補スクリーニング用: 純資産（IFRS適用会社は親会社所有者帰属持分で代替）
+SUMMARY_NET_ASSETS = [
+    "jpcrp_cor:NetAssetsSummaryOfBusinessResults",
+    "jpcrp_cor:EquityAttributableToOwnersOfParentIFRSSummaryOfBusinessResults",
+]
 
 # --------------------------------------------------------------------------
 # 貸借対照表 / 損益計算書の要素ID候補
@@ -209,6 +219,21 @@ def extract(zip_path: Path) -> dict:
         if i == len(PERIODS) - 1:
             rec["revenue_tag"] = tag
 
+    # --- テンバガー候補用: 経常利益5期分（y0が5期前、y4が直近）---
+    for i, period in enumerate(PERIODS):
+        v, tag = pick(lookup, SUMMARY_ORDINARY_INCOME, f"{period}Duration{scope}")
+        rec[f"ordinary_income_y{i}"] = v
+        if i == len(PERIODS) - 1:
+            rec["ordinary_income_tag"] = tag
+
+    # --- テンバガー候補用: 純資産（当期・前期。前期は増資検知の補助に使う）---
+    rec["net_assets"], rec["net_assets_tag"] = pick(
+        lookup, SUMMARY_NET_ASSETS, f"CurrentYearInstant{scope}")
+
+    # --- テンバガー候補用: 発行済株式数の前期分（増資検知用。DPS等と同じく提出会社側にのみ存在）---
+    rec["shares_issued_prior1"], _ = pick(lookup, SUMMARY_SHARES_ISSUED,
+                                          "Prior1YearInstant_NonConsolidatedMember")
+
     # --- 条件2 ROE（期間）/ 条件3 自己資本比率（時点）---
     roe, roe_tag = pick(lookup, SUMMARY_ROE, f"CurrentYearDuration{scope}")
     rec["roe_pct"] = as_pct(roe)
@@ -298,7 +323,8 @@ def main() -> int:
 
     print(f"\n解析完了: {len(snap)}件 (失敗 {len(errors)}件) -> {out}")
     for col in ["revenue_y0", "revenue_y4", "roe_pct", "equity_ratio_pct", "dps",
-                "shares_issued", "current_assets", "current_liabilities", "operating_income"]:
+                "shares_issued", "current_assets", "current_liabilities", "operating_income",
+                "ordinary_income_y0", "ordinary_income_y4", "net_assets", "shares_issued_prior1"]:
         if col in snap.columns:
             n = snap[col].notna().sum()
             print(f"  {col:22s} 取得率 {n:5d}/{len(snap)} ({n / len(snap):6.1%})")

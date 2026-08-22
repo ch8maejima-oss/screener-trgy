@@ -1,0 +1,44 @@
+{
+  "as_of": "2026-08-22",
+  "universe_label": "東証プライム市場・スタンダード市場の内国普通株式",
+  "counts": {
+    "population": 3100,
+    "full_match": 1,
+    "near_match": 13,
+    "passed": 14,
+    "failed": 2808,
+    "not_evaluable": 278
+  },
+  "per_condition_passed": {
+    "c1_market_cap": 841,
+    "c2_revenue_growth": 983,
+    "c3_profit_growth": 1436,
+    "c4_equity_ratio": 1845,
+    "c5_listing_years": 504,
+    "c6_price": 515,
+    "c7_volume": 2004,
+    "c8_pbr": 2158,
+    "c9_no_dilution": 2862
+  },
+  "per_condition_missing": {
+    "c1_market_cap": 4,
+    "c2_revenue_growth": 242,
+    "c3_profit_growth": 155,
+    "c4_equity_ratio": 0,
+    "c5_listing_years": 0,
+    "c6_price": 0,
+    "c7_volume": 0,
+    "c8_pbr": 20,
+    "c9_no_dilution": 9
+  },
+  "thresholds": {
+    "market_cap_max": 10000000000,
+    "revenue_cagr_pct": 8.0,
+    "profit_cagr_pct": 8.0,
+    "equity_ratio_pct": 50.0,
+    "listing_years_max": 12.0,
+    "price_max": 600.0,
+    "avg_volume_min": 30000,
+    "capital_increase_max_pct": 20.0
+  }
+}

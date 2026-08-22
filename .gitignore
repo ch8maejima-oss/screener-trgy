@@ -2,9 +2,11 @@
 data/raw/
 data/snapshot/prices.csv
 data/snapshot/daytrade_prices.csv
+data/snapshot/listing_dates.csv
 .DS_Store
 __pycache__/
 node_modules/
 .next/
 out/
 .vercel
+tsconfig.tsbuildinfo

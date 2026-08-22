@@ -1,0 +1,41 @@
+{
+  "基準日": "2026-08-22",
+  "対象ユニバース": "東証プライム市場・スタンダード市場の内国普通株式",
+  "母集団件数": 3100,
+  "全条件充足": 1,
+  "8/9条件充足": 13,
+  "対象外": 2808,
+  "算出不能により対象外": 278,
+  "条件別_充足件数": {
+    "c1_market_cap": 841,
+    "c2_revenue_growth": 983,
+    "c3_profit_growth": 1436,
+    "c4_equity_ratio": 1845,
+    "c5_listing_years": 504,
+    "c6_price": 515,
+    "c7_volume": 2004,
+    "c8_pbr": 2158,
+    "c9_no_dilution": 2862
+  },
+  "条件別_算出不能件数": {
+    "c1_market_cap": 4,
+    "c2_revenue_growth": 242,
+    "c3_profit_growth": 155,
+    "c4_equity_ratio": 0,
+    "c5_listing_years": 0,
+    "c6_price": 0,
+    "c7_volume": 0,
+    "c8_pbr": 20,
+    "c9_no_dilution": 9
+  },
+  "閾値": {
+    "market_cap_max": 10000000000,
+    "revenue_cagr_pct": 8.0,
+    "profit_cagr_pct": 8.0,
+    "equity_ratio_pct": 50.0,
+    "listing_years_max": 12.0,
+    "price_max": 600.0,
+    "avg_volume_min": 30000,
+    "capital_increase_max_pct": 20.0
+  }
+}

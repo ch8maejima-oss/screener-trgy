@@ -48,10 +48,18 @@ const STRATEGIES: Strategy[] = [
     accent: ACCENT.orange,
   },
   {
+    key: "tenbagger",
+    title: "テンバガー候補スクリーニング",
+    description:
+      "過去10年の株価上昇事例の傾向を踏まえた、時価総額・成長率・自己資本比率・上場年数・株価・出来高・PBR・増資有無の9条件を機械的に適用。",
+    href: "/tenbagger/",
+    accent: ACCENT.aqua,
+  },
+  {
     key: "swing",
     title: "スイング用スクリーニング",
     description: "準備中です。",
-    accent: ACCENT.aqua,
+    accent: ACCENT.yellow,
   },
 ];
 

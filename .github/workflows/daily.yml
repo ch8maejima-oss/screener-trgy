@@ -52,6 +52,12 @@ jobs:
       - name: デイトレード用サイトデータの生成
         run: python scripts/build_daytrade_site_data.py
 
+      - name: テンバガー候補スクリーニング実行
+        run: python scripts/screen_tenbagger.py
+
+      - name: テンバガー候補用サイトデータの生成
+        run: python scripts/build_tenbagger_site_data.py
+
       - name: 有料データの非公開化を検証
         # 銘柄配列(stocks)はEA EXPO購入者限定のゲート配信データであり、Next.jsの
         # ビルドにそのまま埋め込まれる app/*/data/ 配下の公開JSONに含まれてはならない
@@ -61,6 +67,7 @@ jobs:
           test -f private-data/dividend/stocks.json || { echo "private-data/dividend/stocks.json がありません"; exit 1; }
           test -f private-data/daytrade/buy.json || { echo "private-data/daytrade/buy.json がありません"; exit 1; }
           test -f private-data/daytrade/short.json || { echo "private-data/daytrade/short.json がありません"; exit 1; }
+          test -f private-data/tenbagger/stocks.json || { echo "private-data/tenbagger/stocks.json がありません"; exit 1; }
           python -c "
           import json, sys
           from pathlib import Path
@@ -77,6 +84,7 @@ jobs:
           check('app/daytrade/data/latest.json')
           for p in Path('app/daytrade/data/archive').glob('*.json'):
               check(p)
+          check('app/tenbagger/data/latest.json')
           print('公開JSONに銘柄配列が含まれていないことを確認しました')
           "
 
@@ -100,6 +108,7 @@ jobs:
           test -f out/dividend/index.html || { echo "out/dividend/index.html がありません"; exit 1; }
           test -f out/daytrade/index.html || { echo "out/daytrade/index.html がありません"; exit 1; }
           test -f out/daytrade/archive/index.html || { echo "out/daytrade/archive/index.html がありません"; exit 1; }
+          test -f out/tenbagger/index.html || { echo "out/tenbagger/index.html がありません"; exit 1; }
           grep -q "スクリーニング銘柄一覧" out/index.html || { echo "本文が生成されていません"; exit 1; }
           echo "出力ファイル数: $(find out -type f | wc -l)"
 
@@ -214,7 +223,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add output app/dividend/data app/daytrade/data data/master/margin_list.csv private-data
+          git add output app/dividend/data app/daytrade/data app/tenbagger/data data/master/margin_list.csv private-data
           if git diff --staged --quiet; then
             echo "更新なし"
           else
