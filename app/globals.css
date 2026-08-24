@@ -22,6 +22,16 @@ html,
 body {
   margin: 0;
   padding: 0;
+  /* Google Auto ads等、サードパーティスクリプトが本文中に挿入する要素
+     （google-anno-*等）が原因で狭い画面幅でもページ全体が横にはみ出し、
+     ズームアウト表示やヘッダー帯の見切れを招くことがあるための安全策。
+     overflow-x:hiddenではなくclipを使う：hidden/auto/scrollはスクロール
+     コンテナを新設してしまい、CSS仕様上overflow-yも暗黙にautoへ変わって
+     bodyがスクロールコンテナ化し、position:stickyのヘッダーが効かなくなる
+     （実機検証で確認済みの罠）。clipはスクロールコンテナを作らずクリップ
+     のみ行うため、この副作用が起きない。html/bodyどちらもviewportの
+     スクロール判定に関わるため両方に指定する。 */
+  overflow-x: clip;
 }
 
 body {
