@@ -58,7 +58,7 @@ body {
   z-index: 100;
 }
 .site-header__inner {
-  max-width: 1180px;
+  max-width: 1900px;
   margin: 0 auto;
   padding: 14px 20px;
   display: flex;
@@ -228,7 +228,7 @@ body {
   flex: 1;
 }
 .home {
-  max-width: 1180px;
+  max-width: 1900px;
   margin: 0 auto;
   padding: 28px 20px 56px;
 }
@@ -267,6 +267,19 @@ body {
 }
 .intro__lead {
   margin: 0;
+  max-width: 760px;
+}
+
+/* コンテナ幅(1900px)を表・グリッド用に広げた際、地の文の1行が
+   長くなりすぎて読みにくくならないよう、説明文だけ幅の上限を設ける。
+   表(.criteria__table / .results__table)やカード群(.strategy-grid等)は対象外。 */
+.criteria__note,
+.criteria__footnote,
+.coverage__detail dd,
+.disclaimer-banner p,
+.disclaimer-full li,
+.results__legend {
+  max-width: 760px;
 }
 
 /* ---------- Hub (strategy selection) ---------- */
@@ -748,9 +761,19 @@ body {
   color: var(--text-muted);
   font-size: 0.8rem;
 }
+td.results__match {
+  min-width: 190px;
+  max-width: 240px;
+  white-space: normal;
+  vertical-align: top;
+}
 .results__match .results__badge {
+  display: block;
   margin-left: 0;
   white-space: normal;
+  border-radius: 6px;
+  line-height: 1.5;
+  padding: 4px 8px;
 }
 .results__badge--full {
   color: var(--navy);
@@ -831,7 +854,7 @@ body {
   font-size: 0.82rem;
 }
 .site-footer__inner {
-  max-width: 1180px;
+  max-width: 1900px;
   margin: 0 auto;
   padding: 28px 20px;
 }
