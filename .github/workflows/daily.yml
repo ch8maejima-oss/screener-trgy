@@ -7,8 +7,10 @@ name: 日次更新とデプロイ
 
 on:
   schedule:
-    # UTC 09:30 = JST 18:30。東証の大引け(15:30)後、株価が確定してから実行する。
-    - cron: "30 9 * * 1-5"
+    # UTC 10:30 = JST 19:30。東証の大引け(15:30)後、株価が確定してから実行する。
+    # dividend→screener→valuation→trackの順に1時間ずつずらし、Xserverへの
+    # FTPデプロイが同時間帯に重なって接続エラーを起こさないようにしている。
+    - cron: "30 10 * * 1-5"
   workflow_dispatch: # 手動実行も可能にする
 
 concurrency:
