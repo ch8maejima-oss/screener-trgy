@@ -6,11 +6,14 @@
 name: 日次更新とデプロイ
 
 on:
-  schedule:
-    # UTC 10:30 = JST 19:30。東証の大引け(15:30)後、株価が確定してから実行する。
-    # dividend→screener→valuation→trackの順に1時間ずつずらし、Xserverへの
-    # FTPデプロイが同時間帯に重なって接続エラーを起こさないようにしている。
-    - cron: "30 10 * * 1-5"
+  # 2026-08-27: Yahoo Finance(yfinance)の商用利用規約リスクを踏まえ、対外公開の
+  # 自動更新を停止（takedown.yml でメンテナンスページに差し替え済み）。
+  # 再開する場合は下記cronのコメントを解除すること。
+  # schedule:
+  #   # UTC 10:30 = JST 19:30。東証の大引け(15:30)後、株価が確定してから実行する。
+  #   # dividend→screener→valuation→trackの順に1時間ずつずらし、Xserverへの
+  #   # FTPデプロイが同時間帯に重なって接続エラーを起こさないようにしている。
+  #   - cron: "30 10 * * 1-5"
   workflow_dispatch: # 手動実行も可能にする
 
 concurrency:

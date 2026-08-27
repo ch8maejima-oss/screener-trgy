@@ -1,0 +1,111 @@
+# 緊急停止用ワークフロー（手動実行のみ）。
+#
+# 2026-08-27: Yahoo Finance(yfinance)の商用利用規約リスクを踏まえ、対外公開を停止する。
+# 公開サイト(screener.trgy.co.jp)をメンテナンスページに差し替え、
+# 有料会員向けの非公開データ配信(ea-exposition.com側、設定済みの場合のみ)も同時に停止する。
+name: 緊急停止（メンテナンスページへの差し替え）
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: '確認のため "TAKEDOWN" と入力してください'
+        required: true
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  takedown:
+    runs-on: ubuntu-latest
+    env:
+      SCREENER_PAID_READY: ${{ secrets.XSERVER_SCREENER_PRIVATE_DATA_DIR != '' }}
+    steps:
+      - name: 確認文字列のチェック
+        run: |
+          if [ "${{ inputs.confirm }}" != "TAKEDOWN" ]; then
+            echo "confirm欄に TAKEDOWN と入力してください（誤操作防止）"
+            exit 1
+          fi
+
+      - name: メンテナンスページを作成
+        run: |
+          mkdir -p out empty_dir
+          cat > out/index.html <<'HTML'
+          <!doctype html>
+          <html lang="ja">
+          <head>
+          <meta charset="utf-8">
+          <meta name="robots" content="noindex">
+          <title>メンテナンスのお知らせ</title>
+          </head>
+          <body style="font-family:sans-serif;max-width:640px;margin:80px auto;line-height:1.8;">
+          <h1>ただいまメンテナンス中です</h1>
+          <p>本サービスは現在、一時的に停止しております。再開時期は未定です。</p>
+          <p>お問い合わせ：<a href="mailto:info@trgy.co.jp">info@trgy.co.jp</a></p>
+          <p>株式会社トリロジー（近畿財務局長（金商）第372号）</p>
+          </body>
+          </html>
+          HTML
+
+      - name: 転送先パスの検証
+        env:
+          FTP_REMOTE_DIR: ${{ secrets.XSERVER_FTP_REMOTE_DIR }}
+        run: |
+          case "$FTP_REMOTE_DIR" in
+            */public_html/screener.trgy.co.jp|*/public_html/screener.trgy.co.jp/|\
+            */public_html/screener|*/public_html/screener/)
+              echo "転送先: $FTP_REMOTE_DIR" ;;
+            *)
+              echo "転送先が screener 専用ディレクトリではありません: '$FTP_REMOTE_DIR'"
+              exit 1 ;;
+          esac
+
+      - name: 非公開データ配信パスの検証
+        if: ${{ env.SCREENER_PAID_READY == 'true' }}
+        env:
+          FTP_PRIVATE_DATA_DIR: ${{ secrets.XSERVER_SCREENER_PRIVATE_DATA_DIR }}
+        run: |
+          case "$FTP_PRIVATE_DATA_DIR" in
+            */wp-content/private/screener-data|*/wp-content/private/screener-data/)
+              echo "非公開データ転送先: $FTP_PRIVATE_DATA_DIR" ;;
+            *)
+              echo "非公開データ転送先が screener-data 専用ディレクトリではありません: '$FTP_PRIVATE_DATA_DIR'"
+              exit 1 ;;
+          esac
+
+      - name: Install lftp
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
+
+      - name: 公開サイトをメンテナンスページに差し替え
+        env:
+          FTP_HOST: ${{ secrets.XSERVER_FTP_HOST }}
+          FTP_USER: ${{ secrets.XSERVER_FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.XSERVER_FTP_PASSWORD }}
+          FTP_REMOTE_DIR: ${{ secrets.XSERVER_FTP_REMOTE_DIR }}
+        run: |
+          lftp -c "
+            set ftp:ssl-allow true;
+            set ssl:verify-certificate false;
+            open -u \"$FTP_USER\",\"$FTP_PASSWORD\" \"$FTP_HOST\";
+            mirror -R --delete --verbose -x '^\.well-known' -x '^\.htaccess$' out/ \"$FTP_REMOTE_DIR\";
+          "
+
+      - name: 有料会員向け非公開データの配信を停止
+        if: ${{ env.SCREENER_PAID_READY == 'true' }}
+        env:
+          FTP_HOST: ${{ secrets.XSERVER_FTP_HOST }}
+          FTP_USER: ${{ secrets.XSERVER_FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.XSERVER_FTP_PASSWORD }}
+          FTP_PRIVATE_DATA_DIR: ${{ secrets.XSERVER_SCREENER_PRIVATE_DATA_DIR }}
+        run: |
+          lftp -c "
+            set ftp:ssl-allow true;
+            set ssl:verify-certificate false;
+            open -u \"$FTP_USER\",\"$FTP_PASSWORD\" \"$FTP_HOST\";
+            mirror -R --delete --verbose empty_dir/ \"$FTP_PRIVATE_DATA_DIR\";
+          "
+
+      - name: 完了
+        run: echo "✅ screener.trgy.co.jp をメンテナンスページに差し替えました"
