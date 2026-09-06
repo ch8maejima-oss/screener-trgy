@@ -1,0 +1,17 @@
+[
+  {
+    "sec_code": "6330",
+    "name": "東洋エンジニアリング",
+    "market": "プライム（内国株式）",
+    "sector33": "建設業",
+    "price": 2657.0,
+    "change_1d_pct": 6.11,
+    "change_5d_pct": 10.34,
+    "change_20d_pct": 40.51,
+    "volume": 8202800.0,
+    "turnover_yen": 21794839600.0,
+    "market_cap": 139726316000.0,
+    "volume_rising": true,
+    "is_large_cap": true
+  }
+]

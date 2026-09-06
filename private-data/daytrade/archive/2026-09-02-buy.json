@@ -1,0 +1,32 @@
+[
+  {
+    "sec_code": "4506",
+    "name": "住友ファーマ",
+    "market": "プライム（内国株式）",
+    "sector33": "医薬品",
+    "price": 1633.5,
+    "change_1d_pct": 2.74,
+    "change_5d_pct": 12.35,
+    "change_20d_pct": 32.8,
+    "volume": 7280900.0,
+    "turnover_yen": 11893350150.0,
+    "market_cap": 649969650000.0,
+    "volume_rising": true,
+    "is_large_cap": true
+  },
+  {
+    "sec_code": "2593",
+    "name": "伊藤園",
+    "market": "プライム（内国株式）",
+    "sector33": "食料品",
+    "price": 3273.0,
+    "change_1d_pct": 8.7,
+    "change_5d_pct": 8.38,
+    "change_20d_pct": 13.76,
+    "volume": 2654600.0,
+    "turnover_yen": 8688505800.0,
+    "market_cap": 278900119740.0,
+    "volume_rising": true,
+    "is_large_cap": true
+  }
+]

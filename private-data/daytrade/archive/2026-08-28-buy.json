@@ -1,0 +1,47 @@
+[
+  {
+    "sec_code": "6330",
+    "name": "東洋エンジニアリング",
+    "market": "プライム（内国株式）",
+    "sector33": "建設業",
+    "price": 2781.0,
+    "change_1d_pct": 4.67,
+    "change_5d_pct": 19.46,
+    "change_20d_pct": 47.07,
+    "volume": 14596200.0,
+    "turnover_yen": 40592032200.0,
+    "market_cap": 146247228000.0,
+    "volume_rising": true,
+    "is_large_cap": true
+  },
+  {
+    "sec_code": "3994",
+    "name": "マネーフォワード",
+    "market": "プライム（内国株式）",
+    "sector33": "情報・通信業",
+    "price": 6712.0,
+    "change_1d_pct": 4.42,
+    "change_5d_pct": 10.03,
+    "change_20d_pct": 24.97,
+    "volume": 1210500.0,
+    "turnover_yen": 8124876000.0,
+    "market_cap": 372682316648.0,
+    "volume_rising": true,
+    "is_large_cap": true
+  },
+  {
+    "sec_code": "5857",
+    "name": "ＡＲＥホールディングス",
+    "market": "プライム（内国株式）",
+    "sector33": "非鉄金属",
+    "price": 4165.0,
+    "change_1d_pct": 3.48,
+    "change_5d_pct": 6.52,
+    "change_20d_pct": 39.44,
+    "volume": 1288500.0,
+    "turnover_yen": 5366602500.0,
+    "market_cap": 361744969110.0,
+    "volume_rising": true,
+    "is_large_cap": true
+  }
+]

@@ -1,0 +1,47 @@
+[
+  {
+    "sec_code": "6098",
+    "name": "リクルートホールディングス",
+    "market": "プライム（内国株式）",
+    "sector33": "サービス業",
+    "price": 18215.0,
+    "change_1d_pct": 2.33,
+    "change_5d_pct": 10.29,
+    "change_20d_pct": 45.14,
+    "volume": 5950100.0,
+    "turnover_yen": 108381071500.0,
+    "market_cap": 26821663074035.0,
+    "volume_rising": true,
+    "is_large_cap": true
+  },
+  {
+    "sec_code": "9503",
+    "name": "関西電力",
+    "market": "プライム（内国株式）",
+    "sector33": "電気・ガス業",
+    "price": 2810.5,
+    "change_1d_pct": 7.58,
+    "change_5d_pct": 8.85,
+    "change_20d_pct": 15.16,
+    "volume": 10829700.0,
+    "turnover_yen": 30436871850.0,
+    "market_cap": 3133502333500.0,
+    "volume_rising": true,
+    "is_large_cap": true
+  },
+  {
+    "sec_code": "4392",
+    "name": "ＦＩＧ",
+    "market": "プライム（内国株式）",
+    "sector33": "情報・通信業",
+    "price": 1215.0,
+    "change_1d_pct": 6.67,
+    "change_5d_pct": 22.11,
+    "change_20d_pct": 38.86,
+    "volume": 6649000.0,
+    "turnover_yen": 8078535000.0,
+    "market_cap": 38385634725.0,
+    "volume_rising": true,
+    "is_large_cap": false
+  }
+]
