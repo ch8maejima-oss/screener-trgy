@@ -66,6 +66,13 @@ SUMMARY_EQUITY_RATIO = [
 SUMMARY_DPS = [
     "jpcrp_cor:DividendPaidPerShareSummaryOfBusinessResults",
 ]
+# デイトレード②（決算発表カレンダー）用: 1株当たり当期純利益（実績）。
+# 基本的にBasicが開示されるが、IFRS適用会社等でBasicが無くDilutedのみの
+# ケースを実データで確認したためフォールバックする。
+SUMMARY_EPS = [
+    "jpcrp_cor:BasicEarningsLossPerShareSummaryOfBusinessResults",
+    "jpcrp_cor:DilutedEarningsPerShareSummaryOfBusinessResults",
+]
 # 発行済株式数（時価総額の算出に使う）。DPSと同じく提出会社側にのみ存在する。
 SUMMARY_SHARES_ISSUED = [
     "jpcrp_cor:TotalNumberOfIssuedSharesSummaryOfBusinessResults",
@@ -79,6 +86,35 @@ SUMMARY_ORDINARY_INCOME = [
 SUMMARY_NET_ASSETS = [
     "jpcrp_cor:NetAssetsSummaryOfBusinessResults",
     "jpcrp_cor:EquityAttributableToOwnersOfParentIFRSSummaryOfBusinessResults",
+]
+
+# スイング①（期待リターン逆算）用: 営業CF・投資CF・現金同等物の期末残高。
+# 実データ検証で、IFRS移行期の会社は同じ期間について
+# jpcrp_cor:NetCash...SummaryOfBusinessResults（IFRS移行前基準の遡及表示）と
+# jpcrp_cor:CashFlowsFrom...IFRSSummaryOfBusinessResults（IFRS実績）の両方に
+# 異なる値が入ることを確認した（例: doc_id S100YG4D）。他の指標と異なりJGAAP優先だと
+# 移行前基準の値を拾ってしまうため、ここだけIFRS候補を先に置く。
+SUMMARY_OCF = [
+    "jpcrp_cor:CashFlowsFromUsedInOperatingActivitiesIFRSSummaryOfBusinessResults",
+    "jpcrp_cor:NetCashProvidedByUsedInOperatingActivitiesSummaryOfBusinessResults",
+]
+SUMMARY_ICF = [
+    "jpcrp_cor:CashFlowsFromUsedInInvestingActivitiesIFRSSummaryOfBusinessResults",
+    "jpcrp_cor:NetCashProvidedByUsedInInvestingActivitiesSummaryOfBusinessResults",
+]
+SUMMARY_CASH_END = [
+    "jpcrp_cor:CashAndCashEquivalentsIFRSSummaryOfBusinessResults",
+    "jpcrp_cor:CashAndCashEquivalentsSummaryOfBusinessResults",
+]
+# スイング①用: 設備投資額（【設備投資等の概要】の開示値をそのまま採用）。
+# 投資CFをそのままFCFの控除項目に使うと、現金潤沢企業ほど財務目的の預入・
+# 有価証券売買（実態は設備投資ではない）で投資CFが大きく振れ、簡易FCFが
+# 歪む（実例: ファーストリテイリングは営業CFと投資CFがほぼ相殺しFCFが
+# ほぼ0になっていた）。会計基準によらず同じ要素IDが使われることを確認済み。
+# セグメント別内訳にも同じ要素IDが次元(dimension)付きで使われるが、
+# pick()はコンテキストを完全一致で見るため合計値の行のみを拾う。
+SUMMARY_CAPEX = [
+    "jpcrp_cor:CapitalExpendituresOverviewOfCapitalExpendituresEtc",
 ]
 
 # --------------------------------------------------------------------------
@@ -96,6 +132,24 @@ BS_CURRENT_LIABILITIES = [
 PL_OPERATING_INCOME = [
     "jppfs_cor:OperatingIncome",
     "jpigp_cor:OperatingProfitLossIFRS",
+]
+# スイング①用: 有利子負債（短期・長期借入金＋社債＋CP。リース債務は含めない）。
+# 単一要素では取得できないため、貸借対照表の該当科目を合算する。
+# 存在しない科目は0として扱う（会社によって使う科目が異なるため）。
+BS_INTEREST_BEARING_DEBT_ITEMS = [
+    "jppfs_cor:ShortTermLoansPayable",
+    "jppfs_cor:CurrentPortionOfLongTermLoansPayable",
+    "jppfs_cor:CurrentPortionOfBondsPayable",
+    "jppfs_cor:CommercialPapers",
+    "jppfs_cor:BondsPayable",
+    "jppfs_cor:LongTermLoansPayable",
+    "jpigp_cor:BondsAndBorrowingsCLIFRS",
+    "jpigp_cor:BondsAndBorrowingsNCLIFRS",
+]
+# スイング①用: 支払利息（負債コスト算出用）。JGAAPは営業外費用、IFRSは金融費用の注記。
+PL_INTEREST_EXPENSE = [
+    "jpigp_cor:FinancialLiabilitiesMeasuredAtAmortizedCostInterestExpensesIFRS",
+    "jppfs_cor:InterestExpensesNOE",
 ]
 # 営業利益率の分母は損益計算書ではなく【主要な経営指標等の推移】の売上高を用いる。
 # 損益計算書側の売上高は、連結本表に計上されない会社（IFRS適用会社に多い）があり、
@@ -166,6 +220,19 @@ def pick(lookup: dict, candidates: list, context: str):
     return None, None
 
 
+def pick_sum(lookup: dict, candidates: list, context: str):
+    """候補タグのうち存在するものを全て合算する（pickと違い1つに絞らない）。
+    1つも見つからなければNoneを返す（該当科目自体が存在しないのか、単に0なのか
+    区別できないため、後続処理で対象外扱いできるようにする）。"""
+    total, found = 0.0, False
+    for tag in candidates:
+        v = to_number(lookup.get((tag, context)))
+        if v is not None:
+            total += v
+            found = True
+    return total if found else None
+
+
 def pick_scoped(lookup: dict, candidates: list, period: str, kind: str):
     """連結→単体の順にコンテキストを試す。kind は 'Duration' または 'Instant'。"""
     for scope in SCOPES:
@@ -230,6 +297,12 @@ def extract(zip_path: Path) -> dict:
     rec["net_assets"], rec["net_assets_tag"] = pick(
         lookup, SUMMARY_NET_ASSETS, f"CurrentYearInstant{scope}")
 
+    # --- スイング②用: 純資産5期分（y0が5期前、y4が直近）。経常利益5期分と組み合わせて
+    # 「経常利益ベースROE」を5期分算出し、3年間の右肩下がり判定に使う。---
+    for i, period in enumerate(PERIODS):
+        v, _ = pick(lookup, SUMMARY_NET_ASSETS, f"{period}Instant{scope}")
+        rec[f"net_assets_y{i}"] = v
+
     # --- テンバガー候補用: 発行済株式数の前期分（増資検知用。DPS等と同じく提出会社側にのみ存在）---
     rec["shares_issued_prior1"], _ = pick(lookup, SUMMARY_SHARES_ISSUED,
                                           "Prior1YearInstant_NonConsolidatedMember")
@@ -247,6 +320,9 @@ def extract(zip_path: Path) -> dict:
     rec["dps"], _ = pick(lookup, SUMMARY_DPS,
                          "CurrentYearDuration_NonConsolidatedMember")
 
+    # --- デイトレード②用: EPS（実績）---
+    rec["eps"], rec["eps_tag"] = pick(lookup, SUMMARY_EPS, f"CurrentYearDuration{scope}")
+
     # --- 発行済株式数（時価総額用）。DPSと同じく常に提出会社側にある ---
     rec["shares_issued"], _ = pick(lookup, SUMMARY_SHARES_ISSUED,
                                    "CurrentYearInstant_NonConsolidatedMember")
@@ -260,6 +336,19 @@ def extract(zip_path: Path) -> dict:
     # --- 条件6: 営業利益（分母は上の revenue_y4 を用いる）---
     rec["operating_income"], rec["operating_income_tag"] = pick(
         lookup, PL_OPERATING_INCOME, f"CurrentYearDuration{scope}")
+
+    # --- スイング①用: 営業CF・投資CF・現金同等物（期待リターン逆算のFCF算出用）---
+    rec["ocf"], rec["ocf_tag"] = pick(lookup, SUMMARY_OCF, f"CurrentYearDuration{scope}")
+    rec["icf"], rec["icf_tag"] = pick(lookup, SUMMARY_ICF, f"CurrentYearDuration{scope}")
+    rec["cash_and_equivalents"], _ = pick(lookup, SUMMARY_CASH_END,
+                                          f"CurrentYearInstant{scope}")
+    rec["capex"], _ = pick(lookup, SUMMARY_CAPEX, "CurrentYearDuration")
+
+    # --- スイング①用: 有利子負債・支払利息（WACCの負債コスト算出用）---
+    rec["interest_bearing_debt"] = pick_sum(
+        lookup, BS_INTEREST_BEARING_DEBT_ITEMS, f"CurrentYearInstant{scope}")
+    rec["interest_expense"], rec["interest_expense_tag"] = pick(
+        lookup, PL_INTEREST_EXPENSE, f"CurrentYearDuration{scope}")
     return rec
 
 
@@ -324,7 +413,9 @@ def main() -> int:
     print(f"\n解析完了: {len(snap)}件 (失敗 {len(errors)}件) -> {out}")
     for col in ["revenue_y0", "revenue_y4", "roe_pct", "equity_ratio_pct", "dps",
                 "shares_issued", "current_assets", "current_liabilities", "operating_income",
-                "ordinary_income_y0", "ordinary_income_y4", "net_assets", "shares_issued_prior1"]:
+                "ordinary_income_y0", "ordinary_income_y4", "net_assets", "shares_issued_prior1",
+                "ocf", "icf", "cash_and_equivalents", "capex", "interest_bearing_debt",
+                "interest_expense", "eps"]:
         if col in snap.columns:
             n = snap[col].notna().sum()
             print(f"  {col:22s} 取得率 {n:5d}/{len(snap)} ({n / len(snap):6.1%})")

@@ -49,6 +49,7 @@ import numpy as np
 import pandas as pd
 
 from config import OUTPUT_DIR, SNAPSHOT_DIR
+from market_data import fetch_ohlcv_batched
 from screen import fetch_market_data
 
 warnings.filterwarnings("ignore")
@@ -73,7 +74,7 @@ CONDITION_LABELS = [
 ]
 
 
-def fetch_listing_dates(codes: list, batch: int = 150) -> pd.DataFrame:
+def fetch_listing_dates(codes: list) -> pd.DataFrame:
     """
     上場年月日そのものはJPXの銘柄一覧・EDINETのいずれにも機械的に取得できる形で
     含まれていないため、yfinanceの株価データが遡れる最も古い月を上場月の近似値として使う。
@@ -82,25 +83,20 @@ def fetch_listing_dates(codes: list, batch: int = 150) -> pd.DataFrame:
     既に長期上場している銘柄（Yahoo!ファイナンスのデータ取得可能期間の上限、概ね
     1999年前後より前から上場している銘柄）は近似の起点が実際の上場日より新しくなるが、
     その場合でも「8年以内」という条件には該当しないため判定結果への影響はない。
-    """
-    import yfinance as yf
 
+    時間軸が数十年に及ぶ月足データのため、screen.py・screen_daytrade.pyが共有する
+    1年分日次キャッシュ（data/snapshot/daily_ohlcv_1y.csv.gz）では代替できず、
+    ここだけは引き続き独自にyfinanceへアクセスする（バッチ分割ループ自体は
+    market_data.fetch_ohlcv_batchedを再利用する）。
+    """
+    df = fetch_ohlcv_batched(codes, period="max", interval="1mo")
+    if df.empty:
+        return pd.DataFrame(columns=["sec_code", "first_trade_date"])
     rows = []
-    for i in range(0, len(codes), batch):
-        tickers = [f"{c}.T" for c in codes[i: i + batch]]
-        data = yf.download(tickers, period="max", interval="1mo", progress=False,
-                           auto_adjust=False, group_by="ticker", threads=True)
-        available = set(data.columns.get_level_values(0))
-        for t in tickers:
-            if t not in available:
-                continue
-            sub = data[t]
-            close = sub["Close"].dropna() if "Close" in sub else []
-            rows.append({
-                "sec_code": t[:-2],
-                "first_trade_date": close.index.min() if len(close) else None,
-            })
-        print(f"  上場年月取得 [{min(i + batch, len(codes))}/{len(codes)}]")
+    for code, g in df.groupby("sec_code"):
+        close = g["Close"].dropna() if "Close" in g else pd.Series(dtype=float)
+        first_date = g.loc[close.index, "date"].min() if len(close) else None
+        rows.append({"sec_code": code, "first_trade_date": first_date})
     return pd.DataFrame(rows)
 
 
@@ -226,14 +222,28 @@ def main() -> int:
         market.to_csv(price_path, index=False, encoding="utf-8-sig")
     print(f"株価取得: {market['price'].notna().sum()}件")
 
+    # 上場年月（近似値）は一度取得すればほぼ恒久的に変わらない静的な値のため、
+    # 日次で全銘柄を再取得するのではなく、data/snapshot/listing_dates.csv に
+    # 永続キャッシュし、まだキャッシュに無い銘柄（新規上場等）の分だけ都度追加取得する。
     listing_path = SNAPSHOT_DIR / "listing_dates.csv"
-    if args.no_fetch and listing_path.exists():
+    listing = pd.DataFrame(columns=["sec_code", "first_trade_date"])
+    if listing_path.exists():
         listing = pd.read_csv(listing_path, dtype={"sec_code": str}, parse_dates=["first_trade_date"])
+
+    if args.no_fetch:
+        pass  # キャッシュのみ使用（新規銘柄があっても今回は取得しない）
     else:
-        print("上場年月（近似値）を取得します...")
-        listing = fetch_listing_dates(sorted(snap["sec_code"].unique()))
-        listing.to_csv(listing_path, index=False, encoding="utf-8-sig")
-    print(f"上場年月取得: {listing['first_trade_date'].notna().sum()}件")
+        known_codes = set(listing["sec_code"]) if not listing.empty else set()
+        missing_codes = [c for c in sorted(snap["sec_code"].unique()) if c not in known_codes]
+        if missing_codes:
+            print(f"上場年月（近似値）を新規{len(missing_codes)}銘柄分取得します...")
+            new_listing = fetch_listing_dates(missing_codes)
+            listing = pd.concat([listing, new_listing], ignore_index=True)
+            listing = listing.drop_duplicates(subset="sec_code", keep="last")
+            listing.to_csv(listing_path, index=False, encoding="utf-8-sig")
+        else:
+            print("上場年月（近似値）: 新規銘柄なし、キャッシュをそのまま使用")
+    print(f"上場年月取得: {listing['first_trade_date'].notna().sum()}件（キャッシュ{len(listing)}件）")
 
     snap = snap.merge(market, on="sec_code", how="left")
     snap = snap.merge(listing, on="sec_code", how="left")

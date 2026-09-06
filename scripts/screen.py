@@ -28,6 +28,7 @@ import warnings
 import pandas as pd
 
 from config import OUTPUT_DIR, SNAPSHOT_DIR
+from market_data import DAILY_CACHE_PATH, load_daily_cache
 
 warnings.filterwarnings("ignore")
 
@@ -40,42 +41,43 @@ THRESHOLDS = {
 }
 
 
-def fetch_market_data(codes: list, batch: int = 150) -> pd.DataFrame:
+def fetch_market_data(codes: list) -> pd.DataFrame:
     """
-    直近終値、直近12か月に実際に支払われた配当の合計、直近3か月の平均出来高を一括取得する。
+    直近終値、直近12か月に実際に支払われた配当の合計、直近3か月の平均出来高を集計する。
 
     配当に有報の「1株当たり配当額」をそのまま使うことはできない。期中に株式分割が
     あると、有報の値は中間配当が分割前・期末配当が分割後の基準で合算され、分割後の
     株価と組み合わせると利回りが実態より大きくなるため（例: ニトリHDは有報92.4円
     に対し分割調整後は30.8円）。株価と同じ分割調整済みの系列から算出する。
-    """
-    import yfinance as yf
 
+    データはここでyfinanceを直接取得せず、fetch_daily_prices.pyが日次バッチの最初に
+    1回だけ書き出した共有キャッシュ（data/snapshot/daily_ohlcv_1y.csv.gz）から読む
+    （screen_daytrade.py・screen_tenbagger.pyとの重複取得を避けるため）。
+    """
+    if not DAILY_CACHE_PATH.exists():
+        raise SystemExit(
+            f"ERROR: {DAILY_CACHE_PATH} がありません。"
+            "先に fetch_daily_prices.py を実行してください。"
+        )
+
+    df = load_daily_cache(codes)
     rows = []
-    for i in range(0, len(codes), batch):
-        tickers = [f"{c}.T" for c in codes[i: i + batch]]
-        data = yf.download(tickers, period="1y", actions=True, progress=False,
-                           auto_adjust=False, group_by="ticker", threads=True)
-        available = set(data.columns.get_level_values(0))
-        for t in tickers:
-            if t not in available:
-                continue
-            sub = data[t]
-            close = sub["Close"].dropna() if "Close" in sub else []
-            if "Volume" in sub and len(sub["Volume"].dropna()):
-                cutoff = sub.index.max() - pd.DateOffset(months=3)
-                vol_3m = sub["Volume"][sub.index >= cutoff].dropna()
-                avg_volume_3m = float(vol_3m.mean()) if len(vol_3m) else None
-            else:
-                avg_volume_3m = None
-            rows.append({
-                "sec_code": t[:-2],
-                "price": float(close.iloc[-1]) if len(close) else None,
-                "avg_volume_3m": avg_volume_3m,
-                "dividend_ttm": (float(sub["Dividends"].sum())
-                                 if "Dividends" in sub else None),
-            })
-        print(f"  株価・配当取得 [{min(i + batch, len(codes))}/{len(codes)}]")
+    for code, g in df.groupby("sec_code"):
+        g = g.sort_values("date")
+        close = g["Close"].dropna() if "Close" in g else pd.Series(dtype=float)
+        if "Volume" in g and g["Volume"].notna().any():
+            cutoff = g["date"].max() - pd.DateOffset(months=3)
+            vol_3m = g.loc[g["date"] >= cutoff, "Volume"].dropna()
+            avg_volume_3m = float(vol_3m.mean()) if len(vol_3m) else None
+        else:
+            avg_volume_3m = None
+        rows.append({
+            "sec_code": code,
+            "price": float(close.iloc[-1]) if len(close) else None,
+            "avg_volume_3m": avg_volume_3m,
+            "dividend_ttm": (float(g["Dividends"].sum())
+                             if "Dividends" in g else None),
+        })
     return pd.DataFrame(rows)
 
 

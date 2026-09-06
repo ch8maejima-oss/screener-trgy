@@ -43,6 +43,7 @@ import warnings
 import pandas as pd
 
 from config import MASTER_DIR, OUTPUT_DIR, SNAPSHOT_DIR
+from market_data import DAILY_CACHE_PATH, load_daily_cache
 
 warnings.filterwarnings("ignore")
 
@@ -60,39 +61,43 @@ SHORT_THRESHOLDS = {
 }
 
 
-def fetch_ohlcv(codes: list, batch: int = 150) -> pd.DataFrame:
+def fetch_ohlcv(codes: list) -> pd.DataFrame:
     """
-    直近2か月のOHLCVを一括取得し、株価・騰落率・出来高の指標を算出する。
+    直近2か月分のOHLCVから、株価・騰落率・出来高の指標を算出する。
 
     20日騰落率の算出には直近21営業日分の終値が必要。2か月（≒40営業日前後）
     あれば祝日を挟んでも十分な余裕がある。取得できた日数が足りない銘柄
     （新規上場間もない銘柄等）は算出不能としてNoneを返す。
-    """
-    import yfinance as yf
 
+    データはここでyfinanceを直接取得せず、fetch_daily_prices.pyが日次バッチの最初に
+    1回だけ書き出した共有キャッシュ（1年分の日次OHLCV、data/snapshot/daily_ohlcv_1y.csv.gz）
+    から銘柄ごとに直近2ヶ月分をスライスして使う（screen.py・screen_tenbagger.pyとの
+    重複取得を避けるため）。
+    """
+    if not DAILY_CACHE_PATH.exists():
+        raise SystemExit(
+            f"ERROR: {DAILY_CACHE_PATH} がありません。"
+            "先に fetch_daily_prices.py を実行してください。"
+        )
+
+    df = load_daily_cache(codes)
     rows = []
-    for i in range(0, len(codes), batch):
-        tickers = [f"{c}.T" for c in codes[i: i + batch]]
-        data = yf.download(tickers, period="2mo", progress=False,
-                           auto_adjust=False, group_by="ticker", threads=True)
-        available = set(data.columns.get_level_values(0))
-        for t in tickers:
-            if t not in available:
-                continue
-            sub = data[t]
-            close = sub["Close"].dropna() if "Close" in sub else pd.Series(dtype=float)
-            volume = sub["Volume"].dropna() if "Volume" in sub else pd.Series(dtype=float)
-            rows.append({
-                "sec_code": t[:-2],
-                "price": _last(close),
-                "change_1d_pct": _pct_change(close, 1),
-                "change_5d_pct": _pct_change(close, 5),
-                "change_20d_pct": _pct_change(close, 20),
-                "volume": _last(volume),
-                "vol_avg5": _mean_tail(volume, 5),
-                "vol_avg20": _mean_tail(volume, 20),
-            })
-        print(f"  株価・出来高取得 [{min(i + batch, len(codes))}/{len(codes)}]")
+    for code, g in df.groupby("sec_code"):
+        g = g.sort_values("date")
+        cutoff = g["date"].max() - pd.DateOffset(months=2)
+        g = g[g["date"] >= cutoff]
+        close = g["Close"].dropna() if "Close" in g else pd.Series(dtype=float)
+        volume = g["Volume"].dropna() if "Volume" in g else pd.Series(dtype=float)
+        rows.append({
+            "sec_code": code,
+            "price": _last(close),
+            "change_1d_pct": _pct_change(close, 1),
+            "change_5d_pct": _pct_change(close, 5),
+            "change_20d_pct": _pct_change(close, 20),
+            "volume": _last(volume),
+            "vol_avg5": _mean_tail(volume, 5),
+            "vol_avg20": _mean_tail(volume, 20),
+        })
     return pd.DataFrame(rows)
 
 

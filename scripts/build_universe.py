@@ -16,8 +16,10 @@ import pandas as pd
 import requests
 
 JPX_URL = (
+    # 2026-09-03頃、JPXが配布形式を.xlsから.xlsxへ変更（旧URLは404化）。
+    # pandasでの読み込みにはxlrdではなくopenpyxlが必要（requirements.txt参照）。
     "https://www.jpx.co.jp/markets/statistics-equities/misc/"
-    "tvdivq0000001vg2-att/data_j.xls"
+    "tvdivq0000001vg2-att/data_j.xlsx"
 )
 
 ROOT = Path(__file__).resolve().parent.parent

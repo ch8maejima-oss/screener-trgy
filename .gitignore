@@ -1,8 +1,10 @@
 .env
+.venv/
 data/raw/
 data/snapshot/prices.csv
 data/snapshot/daytrade_prices.csv
 data/snapshot/listing_dates.csv
+data/snapshot/daily_ohlcv_1y.csv.gz
 .DS_Store
 __pycache__/
 node_modules/
