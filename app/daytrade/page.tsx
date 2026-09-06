@@ -90,6 +90,14 @@ export default function DaytradePage() {
         </div>
       )}
 
+      <p className="equity-sim__notice-inline">
+        上昇モメンタム条件通過銘柄を機械的な売買ルールで仮想売買した場合の
+        <a href="/daytrade-simulation/" className="hero__method-link">
+          フォワードシミュレーション
+        </a>
+        も別途公開しています。
+      </p>
+
       <DisclaimerFull />
     </div>
   );

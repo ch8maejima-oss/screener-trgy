@@ -1,0 +1,73 @@
+{
+  "startDate": "2026-09-01",
+  "positions": [
+    {
+      "id": "6098-2026-09-01",
+      "code": "6098",
+      "name": "リクルートホールディングス",
+      "sector": "サービス業",
+      "entryDate": "2026-09-01",
+      "entryPrice": 17830.0,
+      "targetPrice": 18245.699438202246,
+      "changeOnEntryDay1dPct": 2.331460674157304,
+      "status": "open",
+      "exitDate": null,
+      "exitPrice": null,
+      "exitReason": null,
+      "returnPct": null
+    },
+    {
+      "id": "9503-2026-09-01",
+      "code": "9503",
+      "name": "関西電力",
+      "sector": "電気・ガス業",
+      "entryDate": "2026-09-01",
+      "entryPrice": 2941.0,
+      "targetPrice": 3163.8968421052637,
+      "changeOnEntryDay1dPct": 7.578947368421063,
+      "status": "open",
+      "exitDate": null,
+      "exitPrice": null,
+      "exitReason": null,
+      "returnPct": null
+    },
+    {
+      "id": "4392-2026-09-01",
+      "code": "4392",
+      "name": "ＦＩＧ",
+      "sector": "情報・通信業",
+      "entryDate": "2026-09-01",
+      "entryPrice": 1144.0,
+      "targetPrice": 1220.3336259877085,
+      "changeOnEntryDay1dPct": 6.672519754170314,
+      "status": "open",
+      "exitDate": null,
+      "exitPrice": null,
+      "exitReason": null,
+      "returnPct": null
+    }
+  ],
+  "equityCurve": [
+    {
+      "date": "2026-09-01",
+      "avgReturnPct": 0.0,
+      "openCount": 3,
+      "closedCount": 0,
+      "winCount": 0,
+      "lossCount": 0
+    }
+  ],
+  "nikkei": [
+    {
+      "date": "2026-09-01",
+      "price": 66180.1796875
+    }
+  ],
+  "topix": [
+    {
+      "date": "2026-09-01",
+      "price": 435.6000061035156
+    }
+  ],
+  "lastUpdated": "2026-09-01"
+}
