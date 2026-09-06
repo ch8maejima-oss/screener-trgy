@@ -226,3 +226,216 @@ export const CONDITIONS_TENBAGGER: {
     source: "有価証券報告書【主要な経営指標等の推移】の発行済株式数（当期・前期）",
   },
 ];
+
+/**
+ * スイング用スクリーニング①「期待リターン逆算」（build_swing1_site_data.py の出力と対応）。
+ * 合否判定のスクリーニングではなく、現在の株価から2段階DCFで逆算した
+ * 市場織込みFCF成長率を一覧表示する（ソートは表示上の操作）。
+ */
+export type Swing1Stock = {
+  sec_code: string;
+  name: string;
+  market: string;
+  sector33: string;
+  period_end: string | null;
+  scope: string | null;
+  price: number | null;
+  market_cap: number | null;
+  beta: number | null;
+  cost_of_equity_pct: number | null;
+  interest_bearing_debt: number | null;
+  cost_of_debt_after_tax_pct: number | null;
+  wacc_pct: number | null;
+  fcf0: number | null;
+  ev: number | null;
+  implied_growth_pct: number | null;
+  operating_income: number | null;
+  projected_operating_income_10y: number | null;
+};
+
+export type Swing1ScreeningData = {
+  as_of: string;
+  universe_label: string;
+  counts: {
+    population: number;
+    listed: number;
+    not_evaluable: number;
+  };
+  exclusion_reasons: Record<string, number>;
+  assumptions: {
+    risk_free_rate_pct: number;
+    equity_risk_premium_pct: number;
+    tax_rate_pct: number;
+    terminal_growth_pct: number;
+    forecast_years: number;
+  };
+};
+
+/**
+ * デイトレード用スクリーニング②「決算発表カレンダー」（build_daytrade2_site_data.py の出力と対応）。
+ * 合否判定ではなく、貸借銘柄を決算発表予定日が近い順に一覧表示する。
+ */
+export type EarningsCalendarStock = {
+  announcement_date: string;
+  sec_code: string;
+  name: string;
+  market: string;
+  sector33: string;
+  quarter_type: string;
+  fiscal_year_end: string | null;
+  period_end: string | null;
+  operating_income: number | null;
+  roe_pct: number | null;
+  eps: number | null;
+};
+
+export type EarningsCalendarData = {
+  as_of: string;
+  universe_label: string;
+  counts: {
+    calendar_total: number;
+    listed: number;
+    not_evaluable: number;
+  };
+  date_range: { 開始: string | null; 終了: string | null };
+};
+
+/**
+ * デイトレード用スクリーニング①（上昇モメンタム）のフォワードシミュレーション
+ * （daytrade_sim.py の出力・data/daytrade-sim-state.json と対応）。
+ */
+export type DaytradeSimPosition = {
+  id: string;
+  code: string;
+  name: string;
+  sector: string;
+  entryDate: string;
+  entryPrice: number;
+  targetPrice: number;
+  changeOnEntryDay1dPct: number;
+  status: "open" | "closed";
+  exitDate: string | null;
+  exitPrice: number | null;
+  exitReason: "target" | "stopLoss" | "maxHold" | null;
+  returnPct: number | null;
+};
+
+export type EquitySimCurvePoint = {
+  date: string;
+  avgReturnPct: number;
+  openCount: number;
+  closedCount: number;
+  winCount: number;
+  lossCount: number;
+};
+
+export type PricePoint = { date: string; price: number };
+
+export type DaytradeSimState = {
+  startDate: string;
+  lastUpdated: string;
+  positions: DaytradeSimPosition[];
+  equityCurve: EquitySimCurvePoint[];
+  nikkei: PricePoint[];
+  topix: PricePoint[];
+};
+
+/**
+ * スイング用スクリーニング②「ROE・PBR整合性チェッカー」
+ * （screen_swing2.py の出力・output/swing2_buy_*.csv と対応）。
+ */
+export type Swing2Stock = {
+  sec_code: string;
+  name: string;
+  market: string;
+  sector33: string;
+  period_end: string | null;
+  scope: string | null;
+  price: number | null;
+  market_cap: number | null;
+  avg_volume_3m: number | null;
+  pbr: number | null;
+  theoretical_pbr: number | null;
+  lower_deviation_pct: number | null;
+  adjusted_roe_pct: number | null;
+  per: number | null;
+  sector_avg_per: number | null;
+  equity_ratio_pct: number | null;
+  technical_signal: "goldenCross" | "ma25Reversal" | "volumeSpike" | null;
+};
+
+export type Swing2ScreeningData = {
+  as_of: string;
+  universe_label: string;
+  counts: {
+    population: number;
+    size_liquidity_passed: number;
+    listed: number;
+    not_evaluable: number;
+  };
+  per_condition_passed: Record<string, number>;
+  per_condition_missing: Record<string, number>;
+  thresholds: Record<string, number>;
+};
+
+/**
+ * スイング②のフォワードシミュレーション（swing2_sim.py の出力・
+ * data/swing2-sim-state.json と対応）。部分決済（半分利確）に対応するため
+ * daytrade_sim.pyのPositionより項目が多い。
+ */
+export type Swing2SimPosition = {
+  id: string;
+  code: string;
+  name: string;
+  sector: string;
+  entryDate: string;
+  entryPrice: number;
+  entryPbr: number;
+  theoreticalPbr: number;
+  lowerDeviationPctAtEntry: number;
+  status: "open" | "closed";
+  partialExitDate: string | null;
+  partialExitPrice: number | null;
+  partialExitReason: "deviationNarrowed" | "technical" | null;
+  exitDate: string | null;
+  exitPrice: number | null;
+  exitReason: "target" | "stopLoss" | "maxHold" | null;
+  returnPct: number | null;
+};
+
+export type Swing2SimState = {
+  startDate: string;
+  lastUpdated: string;
+  positions: Swing2SimPosition[];
+  equityCurve: EquitySimCurvePoint[];
+};
+
+/**
+ * テンバガー候補のフォワードシミュレーション（tenbagger_sim.py の出力・
+ * data/tenbagger-sim-state.json と対応）。3倍で1/3・6倍で1/3・10倍で残り全量という
+ * 2段階の部分利確に対応するため、Swing2SimPositionより項目が多い。
+ */
+export type TenbaggerSimPosition = {
+  id: string;
+  code: string;
+  name: string;
+  sector: string;
+  entryDate: string;
+  entryPrice: number;
+  status: "open" | "closed";
+  partial1ExitDate: string | null;
+  partial1ExitPrice: number | null;
+  partial2ExitDate: string | null;
+  partial2ExitPrice: number | null;
+  exitDate: string | null;
+  exitPrice: number | null;
+  exitReason: "target" | "stopLoss" | "maxHold" | null;
+  returnPct: number | null;
+};
+
+export type TenbaggerSimState = {
+  startDate: string;
+  lastUpdated: string;
+  positions: TenbaggerSimPosition[];
+  equityCurve: EquitySimCurvePoint[];
+};

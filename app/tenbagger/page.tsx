@@ -62,6 +62,14 @@ export default function Home() {
         </div>
       )}
 
+      <p className="equity-sim__notice-inline">
+        テンバガー候補通過銘柄を機械的な売買ルールで仮想売買した場合の
+        <a href="/tenbagger-simulation/" className="hero__method-link">
+          フォワードシミュレーション
+        </a>
+        も別途公開しています。
+      </p>
+
       <Coverage data={screening} />
 
       <section className="sources" aria-label="データの出所">

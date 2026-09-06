@@ -29,6 +29,7 @@ python3 scripts/build_daytrade_site_data.py
 
 python3 scripts/screen_tenbagger.py
 python3 scripts/build_tenbagger_site_data.py
+python3 scripts/tenbagger_sim.py
 
 echo "===== $(date '+%Y-%m-%d %H:%M:%S') 終了（screening-site） ====="
 
