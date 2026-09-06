@@ -14,6 +14,14 @@ EDINET_API_BASE = "https://api.edinet-fsa.go.jp/api/v2"
 # 有価証券報告書の書類種別コード
 DOC_TYPE_YUHO = "120"
 
+# スイング①（期待リターン逆算）用のCAPM/DCF前提。ユーザー確認済み(2026-08-31)。
+# 無リスク金利は10年国債利回りの目安を固定値として置き、相場が大きく動いたら
+# 手動で更新する運用（日次で自動取得はしない）。
+SWING1_RISK_FREE_RATE_PCT = 2.8   # 2026-08時点の新発10年国債利回り目安
+SWING1_EQUITY_RISK_PREMIUM_PCT = 6.0
+SWING1_TAX_RATE_PCT = 30.0        # 負債コスト(税引後)算出用の実効税率の目安
+SWING1_TERMINAL_GROWTH_PCT = 1.0  # 11年目以降の永久成長率
+
 
 def _load_dotenv() -> None:
     env_path = ROOT / ".env"
