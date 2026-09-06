@@ -12,6 +12,7 @@
   --radius: 12px;
   --shadow: 0 2px 12px rgba(15, 41, 71, 0.06);
   --error: #c0392b;
+  --win: #2e7d32;
 }
 
 * {
@@ -984,4 +985,214 @@ td.results__match {
     border-radius: 0;
     box-shadow: none;
   }
+}
+
+/* ---------- Equity simulation (フォワードシミュレーション) ---------- */
+.equity-sim__notice {
+  margin: 24px 0;
+  padding: 18px 22px;
+  background: #fdecea;
+  border: 2px solid var(--error);
+  border-radius: var(--radius);
+}
+.equity-sim__notice-title {
+  margin: 0 0 10px;
+  font-weight: 800;
+  color: var(--error);
+  font-size: 1rem;
+}
+.equity-sim__notice ul {
+  margin: 0;
+  padding-left: 1.2em;
+  font-size: 0.85rem;
+  color: var(--text);
+  line-height: 1.8;
+}
+.equity-sim__notice li {
+  margin-bottom: 4px;
+}
+
+.equity-sim__rules {
+  margin: 24px 0;
+  padding: 20px 22px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.equity-sim__rules h2 {
+  font-size: 1rem;
+  color: var(--navy);
+  margin: 0 0 12px;
+}
+.equity-sim__rules ol {
+  margin: 0;
+  padding-left: 1.3em;
+  font-size: 0.9rem;
+  line-height: 1.8;
+}
+.equity-sim__rules li {
+  margin-bottom: 8px;
+}
+
+.equity-sim__summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 24px 0;
+}
+.equity-sim__stat {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: center;
+}
+.equity-sim__stat-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.equity-sim__stat-value {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--navy);
+}
+.equity-sim__stat-value.is-positive {
+  color: var(--win);
+}
+.equity-sim__stat-value.is-negative {
+  color: var(--error);
+}
+
+.equity-sim__chart-wrap {
+  position: relative;
+  margin: 16px 0 4px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+.equity-sim__chart {
+  width: 100%;
+  height: auto;
+  display: block;
+  cursor: crosshair;
+}
+.equity-sim__chart-legend {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.equity-sim__legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.equity-sim__legend-item i {
+  display: inline-block;
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+}
+.equity-sim__gridline {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.equity-sim__zeroline {
+  stroke: var(--text-muted);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+.equity-sim__axis-label {
+  font-size: 11px;
+  fill: var(--text-muted);
+}
+.equity-sim__crosshair {
+  stroke: var(--navy-light);
+  stroke-width: 1;
+  stroke-dasharray: 2 2;
+}
+.equity-sim__tooltip {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: var(--navy);
+  color: #fff;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.78rem;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+}
+.equity-sim__chart-caption {
+  margin: 0 0 8px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.equity-sim__notice-inline {
+  margin: 0 0 24px;
+  padding: 10px 14px;
+  background: #fdecea;
+  border-left: 4px solid var(--error);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--error);
+}
+.equity-sim__open-summary {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+.equity-sim__empty {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.equity-sim__positions {
+  margin: 32px 0;
+}
+.equity-sim__positions h2 {
+  font-size: 1rem;
+  color: var(--navy);
+  margin: 28px 0 12px;
+}
+.equity-sim__positions h2:first-child {
+  margin-top: 0;
+}
+.equity-sim__cell-positive {
+  color: var(--win);
+  font-weight: 700;
+}
+.equity-sim__cell-negative {
+  color: var(--error);
+  font-weight: 700;
+}
+.equity-sim__updated {
+  margin: 24px 0 48px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+@media (max-width: 720px) {
+  .equity-sim__summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.hero__method-link {
+  color: var(--navy);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.hero__method-link:hover {
+  color: var(--gold);
 }

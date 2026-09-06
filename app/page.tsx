@@ -41,11 +41,19 @@ const STRATEGIES: Strategy[] = [
   },
   {
     key: "daytrade",
-    title: "デイトレード用スクリーニング",
+    title: "デイトレード用スクリーニング① モメンタム",
     description:
       "貸借銘柄・売買代金・前日/5日/20日騰落率・出来高増加傾向などの条件を、上昇/下落モメンタムそれぞれに機械的に適用。",
     href: "/daytrade/",
     accent: ACCENT.orange,
+  },
+  {
+    key: "daytrade2",
+    title: "デイトレード用スクリーニング② 決算発表カレンダー",
+    description:
+      "貸借銘柄について、今後の決算発表予定日が近い順に、直近の営業利益・ROE・EPSを一覧表示。",
+    href: "/earnings-calendar/",
+    accent: ACCENT.magenta,
   },
   {
     key: "tenbagger",
@@ -56,10 +64,20 @@ const STRATEGIES: Strategy[] = [
     accent: ACCENT.aqua,
   },
   {
-    key: "swing",
-    title: "スイング用スクリーニング",
-    description: "準備中です。",
+    key: "swing1",
+    title: "スイング用スクリーニング① 期待リターン逆算",
+    description:
+      "現在の株価から、2段階DCFモデルで市場が織り込んでいるFCF成長率を逆算して一覧表示。",
+    href: "/swing-implied-growth/",
     accent: ACCENT.yellow,
+  },
+  {
+    key: "swing2",
+    title: "スイング用スクリーニング② ROE・PBR整合性チェッカー",
+    description:
+      "PBR＝ROE×PERの関係式から理論PBRを算出し、実績PBRとの下方乖離・ROEの質・安全性・テクニカル条件を機械的に適用。",
+    href: "/swing-roe-pbr/",
+    accent: ACCENT.green,
   },
 ];
 
