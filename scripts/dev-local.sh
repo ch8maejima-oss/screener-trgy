@@ -7,7 +7,7 @@
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
-(cd private-data && python3 -m http.server 8899 --bind 127.0.0.1 > /dev/null 2>&1) &
+(python3 scripts/dev_private_data_server.py > /dev/null 2>&1) &
 PRIVATE_DATA_PID=$!
 
 cleanup() {
