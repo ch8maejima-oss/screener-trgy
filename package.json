@@ -4,7 +4,7 @@
   "private": true,
   "description": "スクリーニング銘柄一覧 (screener.trgy.co.jp) — 株式会社トリロジー",
   "scripts": {
-    "dev": "next dev",
+    "dev": "bash scripts/dev-local.sh",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

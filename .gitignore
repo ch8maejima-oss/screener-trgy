@@ -1,5 +1,6 @@
 .env
 .venv/
+.dev-server.log
 data/raw/
 data/snapshot/prices.csv
 data/snapshot/daytrade_prices.csv
