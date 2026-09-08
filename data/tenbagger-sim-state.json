@@ -282,7 +282,23 @@
       "closedCount": 0,
       "winCount": 0,
       "lossCount": 0
+    },
+    {
+      "date": "2026-09-07",
+      "avgReturnPct": 1.5988423034143164,
+      "openCount": 16,
+      "closedCount": 0,
+      "winCount": 0,
+      "lossCount": 0
+    },
+    {
+      "date": "2026-09-08",
+      "avgReturnPct": 4.089998142692349,
+      "openCount": 16,
+      "closedCount": 0,
+      "winCount": 0,
+      "lossCount": 0
     }
   ],
-  "lastUpdated": "2026-09-04"
+  "lastUpdated": "2026-09-08"
 }

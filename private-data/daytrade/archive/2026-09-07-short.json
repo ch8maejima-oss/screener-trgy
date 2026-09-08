@@ -1,0 +1,17 @@
+[
+  {
+    "sec_code": "4385",
+    "name": "メルカリ",
+    "market": "プライム（内国株式）",
+    "sector33": "情報・通信業",
+    "price": 4340.0,
+    "change_1d_pct": -2.32,
+    "change_5d_pct": -6.32,
+    "change_20d_pct": -13.72,
+    "volume": 1631500.0,
+    "turnover_yen": 7080710000.0,
+    "market_cap": 714140594160.0,
+    "volume_rising": true,
+    "is_large_cap": true
+  }
+]

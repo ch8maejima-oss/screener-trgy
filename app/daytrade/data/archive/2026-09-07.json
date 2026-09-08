@@ -1,11 +1,11 @@
 {
-  "as_of": "2026-09-08",
+  "as_of": "2026-09-07",
   "universe_label": "東証プライム市場・スタンダード市場の内国普通株式",
   "counts": {
     "population": 3115,
     "margin_eligible": 2102,
-    "buy_passed": 1,
-    "short_passed": 10,
+    "buy_passed": 2,
+    "short_passed": 1,
     "not_evaluable": 13
   },
   "common_thresholds": {

@@ -1,0 +1,32 @@
+[
+  {
+    "sec_code": "7826",
+    "name": "フルヤ金属",
+    "market": "プライム（内国株式）",
+    "sector33": "その他製品",
+    "price": 10840.0,
+    "change_1d_pct": 3.93,
+    "change_5d_pct": 18.99,
+    "change_20d_pct": 36.87,
+    "volume": 528400.0,
+    "turnover_yen": 5727856000.0,
+    "market_cap": 275223654240.0,
+    "volume_rising": true,
+    "is_large_cap": true
+  },
+  {
+    "sec_code": "4062",
+    "name": "イビデン",
+    "market": "プライム（内国株式）",
+    "sector33": "電気機器",
+    "price": 22200.0,
+    "change_1d_pct": 8.42,
+    "change_5d_pct": 8.53,
+    "change_20d_pct": 16.17,
+    "volume": 9519800.0,
+    "turnover_yen": 211339560000.0,
+    "market_cap": 6254208730800.0,
+    "volume_rising": true,
+    "is_large_cap": true
+  }
+]
